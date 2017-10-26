@@ -122,6 +122,7 @@ public class AccountController {
         request.getSession().setAttribute("accountIdSavedInSession",id);
     }
 
+    // 显示详情
     @ResponseBody
     @RequestMapping(value = "/showAccountDetailsByIdInSession")
     public AjaxResult showAccountDetailsByIdInSession(HttpServletRequest request){
