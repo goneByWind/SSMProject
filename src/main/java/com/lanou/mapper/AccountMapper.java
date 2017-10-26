@@ -25,7 +25,9 @@ public interface AccountMapper {
                                @Param("loginName")String loginName,
                                @Param("status")String status);
 
-    List<Account> findAccountListByIdCard(@Param("idcardNo") String idcardNo);
+    Account findAccountByIdCard(@Param("idcardNo") String idcardNo);
 
     Account findAccountByLoginName(@Param("loginName") String loginName);
+
+    Account findAccountByIdWithCascade(@Param("accountId") Integer id);
 }

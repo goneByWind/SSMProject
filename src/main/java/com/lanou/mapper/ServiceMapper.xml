@@ -68,6 +68,13 @@
         AND status LIKE CONCAT(CONCAT('%',#{status}),'%')
       </if>
   </select>
+  <!--显示详情,用到了级联查询-->
+  <select id="findServiceDetailsById" resultMap="ServiceResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from service
+    where service_id = #{serviceId}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from service
     where service_id = #{serviceId,jdbcType=INTEGER}

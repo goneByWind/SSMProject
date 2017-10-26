@@ -77,9 +77,16 @@ public class AccountController {
 
         System.out.println(account);
 
+        /*验证身份证是否已经被注册*/
+        Account accountByIdCard = accountService.findAccountByIdCard(idcardNo);
+        // 数据库里以及存在这个身份证号码注册的账号了,不被允许再注册
+        if (accountByIdCard!=null){
+         return new AjaxResult(0,"身份证已经被注册!");
+        }
+
         accountService.addNew(account);
 
-        return new AjaxResult("添加新的账号成功!");
+        return new AjaxResult(1,"添加新的账号成功!");
     }
 
     // 暂停account账户
@@ -206,10 +213,10 @@ public class AccountController {
     @RequestMapping("/searchAccountByIdcardNo")
     public AjaxResult searchAccountByIdcardNo(@RequestParam("idcardNo") String idcardNo){
 
-        List<Account> accountListByIdCard = accountService.findAccountListByIdCard(idcardNo);
-        System.out.println(accountListByIdCard);
-        if (accountListByIdCard!=null){
-            return new AjaxResult(1);
+        Account accountByIdCard = accountService.findAccountByIdCard(idcardNo);
+        System.out.println(accountByIdCard);
+        if (accountByIdCard!=null){
+            return new AjaxResult(accountByIdCard,1,"账务账号存在~");
         }
         return new AjaxResult(0);
     }

@@ -5,6 +5,56 @@
         <title></title>
         <link type="text/css" rel="stylesheet" media="all" href="../styles/global.css" />
         <link type="text/css" rel="stylesheet" media="all" href="../styles/global_color.css" />
+        <script src="/js/jquery-3.2.1.js"></script>
+        <script>
+            // 将时间戳修改为日期类型
+            function getLocalTime(jsondate) {
+                if(jsondate!==null&&jsondate.toString().length>0){
+                    jsondate=""+jsondate+"";//因为jsonDate是number型的indexOf会报错
+                    if (jsondate.indexOf("+") > 0) {
+                        jsondate = jsondate.substring(0, jsondate.indexOf("+"));
+                    }
+                    else if (jsondate.indexOf("-") > 0) {
+                        jsondate = jsondate.substring(0, jsondate.indexOf("-"));
+                    }
+                    var date = new Date(parseInt(jsondate, 10));
+                    var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+                    var currentDate = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+                    var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+                    var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+                    var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+                    return date.getFullYear() + "-" + month + "-" + currentDate + " " + hours + ":" + minutes + ":" + seconds;
+                }
+            }
+            // 显示详情
+            function showDetailsForService() {
+                $.ajax({
+                    url:"/showDetailsForService",
+                    type:"post",
+                    success:function (result) {
+                        console.log(result.message);
+                        var service = result.data;
+                        $("#serviceId").val(service.serviceId);
+                        $("#accountId").val(service.accountId);
+                        $("#realName").val(service.account.realName);
+                        $("#idcardNo").val(service.account.idcardNo);
+                        $("#unixHost").val(service.unixHost);
+                        $("#osUsername").val(service.osUsername);
+                        if (service.status=="0"){
+                            $("select#status option[value='0']").attr('selected','true')}
+                        if (service.status=="1"){
+                            $("select#status option[value='1']").attr('selected','true')}
+                        if (service.status=="2"){
+                            $("select#status option[value='2']").attr('selected','true')}
+                        $("#createDate").val(getLocalTime(service.createDate));
+                        $("#costId").val(service.costId);
+                        $("#name").val(service.cost.name);
+                        $("#descr").html(service.cost.descr);
+                    }
+                })
+            }
+            showDetailsForService();
+        </script>
     </head>
     <body>
         <!--Logo区域开始-->
@@ -19,9 +69,9 @@
                 <li><a href="../index.html" class="index_off"></a></li>
                 <li><a href="../role/role_list.html" class="role_off"></a></li>
                 <li><a href="../admin/admin_list.html" class="admin_off"></a></li>
-                <li><a href="../fee/fee_list.html" class="fee_off"></a></li>
-                <li><a href="../account/account_list.html" class="account_off"></a></li>
-                <li><a href="../service/service_list.html" class="service_on"></a></li>
+                <li><a href="/costpage_list" class="fee_off"></a></li>
+                <li><a href="/accountpage_list" class="account_off"></a></li>
+                <li><a href="/servicepage_list" class="service_on"></a></li>
                 <li><a href="../bill/bill_list.html" class="bill_off"></a></li>
                 <li><a href="../report/report_list.html" class="report_off"></a></li>
                 <li><a href="../user/user_info.html" class="information_off"></a></li>
@@ -34,38 +84,38 @@
             <form action="" method="" class="main_form">
                 <!--必填项-->
                 <div class="text_info clearfix"><span>业务账号ID：</span></div>
-                <div class="input_info"><input type="text" value="1" readonly class="readonly" /></div>
+                <div class="input_info"><input type="text" value="1" readonly class="readonly" id="serviceId" /></div>
                 <div class="text_info clearfix"><span>账务账号ID：</span></div>
-                <div class="input_info"><input type="text" value="101" readonly class="readonly" /></div>
+                <div class="input_info"><input type="text" value="101" readonly class="readonly" id="accountId" /></div>
                 <div class="text_info clearfix"><span>客户姓名：</span></div>
-                <div class="input_info"><input type="text" readonly class="readonly" value="张三" /></div>
+                <div class="input_info"><input type="text" readonly class="readonly" value="张三" id="realName" /></div>
                 <div class="text_info clearfix"><span>身份证号码：</span></div>
-                <div class="input_info"><input type="text" readonly class="readonly" value="230111111111111111" /></div>
+                <div class="input_info"><input type="text" readonly class="readonly" value="230111111111111111" id="idcardNo" /></div>
                 <div class="text_info clearfix"><span>服务器 IP：</span></div>
-                <div class="input_info"><input type="text" value="192.168.0.23" readonly class="readonly" /></div>
+                <div class="input_info"><input type="text" value="192.168.0.23" readonly class="readonly" id="unixHost" /></div>
                 <div class="text_info clearfix"><span>OS 账号：</span></div>
-                <div class="input_info"><input type="text" value="openlab1" readonly class="readonly" /></div>
+                <div class="input_info"><input type="text" value="openlab1" readonly class="readonly" id="osUsername" /></div>
                 <div class="text_info clearfix"><span>状态：</span></div>
                 <div class="input_info">
-                    <select disabled>
-                        <option>开通</option>
-                        <option>暂停</option>
-                        <option>删除</option>
+                    <select disabled id="status">
+                        <option value="0">开通</option>
+                        <option value="1">暂停</option>
+                        <option value="2">删除</option>
                     </select>                        
                 </div>
                 <div class="text_info clearfix"><span>开通时间：</span></div>
-                <div class="input_info"><input type="text" readonly class="readonly" /></div>
+                <div class="input_info"><input type="text" readonly class="readonly" id="createDate" /></div>
                 <div class="text_info clearfix"><span>资费 ID：</span></div>
-                <div class="input_info"><input type="text" class="readonly" readonly /></div>
+                <div class="input_info"><input type="text" class="readonly" readonly id="costId" /></div>
                 <div class="text_info clearfix"><span>资费名称：</span></div>
-                <div class="input_info"><input type="text" readonly class="width200 readonly" /></div>
+                <div class="input_info"><input type="text" readonly class="width200 readonly" id="name" /></div>
                 <div class="text_info clearfix"><span>资费说明：</span></div>
                 <div class="input_info_high">
-                    <textarea class="width300 height70 readonly" readonly>包 20 小时，20 小时以内 24.5 元，超出部分 0.03 元/分钟</textarea>
+                    <textarea class="width300 height70 readonly" readonly id="descr">包 20 小时，20 小时以内 24.5 元，超出部分 0.03 元/分钟</textarea>
                 </div>  
                 <!--操作按钮-->
                 <div class="button_info clearfix">
-                    <input type="button" value="返回" class="btn_save" onclick="location.href='service_list.html';" />
+                    <input type="button" value="返回" class="btn_save" onclick="location.href='/servicepage_list';" />
                 </div>
             </form>
         </div>

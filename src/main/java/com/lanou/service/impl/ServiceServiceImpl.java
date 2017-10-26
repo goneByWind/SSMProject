@@ -37,4 +37,15 @@ public class ServiceServiceImpl implements ServiceService {
     public void addNew(com.lanou.bean.Service service) {
         serviceMapper.insertSelective(service);
     }
+
+    @Override
+    public void updateService(com.lanou.bean.Service service) {
+        serviceMapper.updateByPrimaryKeySelective(service);
+    }
+
+    @Override
+    public com.lanou.bean.Service findById(Integer id) {
+        return serviceMapper.findServiceDetailsById(id);
+    }
+
 }

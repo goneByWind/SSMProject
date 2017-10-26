@@ -70,13 +70,18 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Account> findAccountListByIdCard(String idcardNo) {
-        List<Account> accountListByIdCard = accountMapper.findAccountListByIdCard(idcardNo);
-        return accountListByIdCard;
+    public Account findAccountByIdCard(String idcardNo) {
+        Account accountByIdCard = accountMapper.findAccountByIdCard(idcardNo);
+        return accountByIdCard;
     }
 
     @Override
     public Account findAccountByLoginName(String loginName) {
         return accountMapper.findAccountByLoginName(loginName);
+    }
+
+    @Override
+    public Account findAccountByIdWithCascade(Integer id) {
+        return accountMapper.findAccountByIdWithCascade(id);
     }
 }

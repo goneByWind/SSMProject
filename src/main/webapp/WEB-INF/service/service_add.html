@@ -34,7 +34,7 @@
                         loginPasswd:$("#loginPasswd").val(),
                         costId:costId
                     },
-                    success:function () {
+                    success:function (result) {
                         console.log(result.message);
                         window.location.href='/servicepage_list'
                     }
@@ -82,6 +82,9 @@
                         }
                         if (errorCode==1){
                             $("#searchAccountByIdcardNoResult").html("身份证号码存在~ ~")
+                            var loginName = result.data.loginName;
+                            $("#loginName").val(loginName);
+                            searchAccounts()
                         }
                     }
                 })
@@ -154,7 +157,7 @@
                 </div>
                 <div class="text_info clearfix"><span>账务账号：</span></div>
                 <div class="input_info">
-                    <input type="text" onchange="searchAccounts();" id="loginName" />
+                    <input type="text" id="loginName" readonly />
                     <span class="required">*</span>
                     <div class="validate_msg_long" id="searchAccountByLoginNameResult"></div>
                 </div>

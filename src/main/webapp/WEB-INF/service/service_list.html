@@ -15,16 +15,33 @@
                 var td3 = $("<td></td>").html(msg.account.idcardNo);
                 var td4 = $("<td></td>").html(msg.account.realName);
                 var td5 = $("<td></td>").html(msg.osUsername);
-                var td6 = $("<td></td>").html(msg.status);
+                if (msg.status=="0"){
+                    var td6 = $("<td></td>").html("开通");
+                }
+                if (msg.status=="1"){
+                    var td6 = $("<td></td>").html("暂停");
+                }
+                if (msg.status=="2"){
+                    var td6 = $("<td></td>").html("删除");
+                }
+
                 var td7 = $("<td></td>").html(msg.unixHost);
                 var td8 = $("<td></td>").html(msg.cost.name);
                 var td9 = $("<td class='td_modi'></td>");
+                if(msg.status=="0"){
                 $("<input type='button' value='暂停' class='btn_pause'>").click(pauseService).attr("num",msg.serviceId).attr("pageNum",pageMsg.pageNum).appendTo(td9);
                 $("<input type='button' value='修改' class='btn_modify'>").click(saveIdToSession).attr("num",msg.serviceId).attr("flag","modify").attr("pageNum",pageMsg.pageNum).appendTo(td9);
-                $("<input type='button' value='删除' class='btn_delete'>").click(deleteService).attr("num",msg.serviceId).attr("pageNum",pageMsg.pageNum).appendTo(td9);
+                $("<input type='button' value='删除' class='btn_delete'>").click(deleteService).attr("num",msg.serviceId).attr("pageNum",pageMsg.pageNum).appendTo(td9);}
+                if(msg.status=="1"){
+                    $("<input type='button' value='开通' class='btn_start'>").click(startService).attr("num",msg.serviceId).attr("pageNum",pageMsg.pageNum).appendTo(td9);
+                    $("<input type='button' value='修改' class='btn_modify'>").click(saveIdToSession).attr("num",msg.serviceId).attr("flag","modify").attr("pageNum",pageMsg.pageNum).appendTo(td9);
+                    $("<input type='button' value='删除' class='btn_delete'>").click(deleteService).attr("num",msg.serviceId).attr("pageNum",pageMsg.pageNum).appendTo(td9);}
+                if(msg.status=="2"){
+                    $("<input type='button' value='已删除' class='btn_delete'>").appendTo(td9);
+                    $("<input type='button' value='修改' class='btn_modify'>").appendTo(td9);
+                    $("<input type='button' value='删除' class='btn_delete'>").appendTo(td9);}
                 var tr_service=$("<tr></tr>").append(td1).append(td2).append(td3).append(td4).append(td5).append(td6).append(td7).append(td8).append(td9);
                 $("#tab").append(tr_service);
-
             }
             // 模糊查询及显示全部页面
             function searchServicesInServicePage(page) {
@@ -114,11 +131,7 @@
                 else
                     detailDiv.style.display = "none";
             }
-            //删除
-            function deleteService() {
-                var r = window.confirm("确定要删除此业务账号吗？删除后将不能恢复。");
-                document.getElementById("operate_result_info").style.display = "block";
-            }
+
             //开通或暂停
             function setState() {
                 var r = window.confirm("确定要开通此业务账号吗？");
@@ -126,11 +139,85 @@
             }
             //
             function saveIdToSession() {
+                var serviceId = $(this).attr("num");
+                var flag = $(this).attr("flag");
+                $.ajax({
+                    url:"/saveIdToSessionForServiceModule",
+                    type:"post",
+                    data:{
+                        serviceId:serviceId
+                    },
+                    success:function () {
+                        if (flag=="detail"){
+                            window.location.href='/servicepage_detail';
+                        }
+                        if(flag=="modify"){
+                            window.location.href='/servicepage_modi';
+                        }
+                    }
+                })
 
             }
 
-            //
+            // 点击暂停按钮  暂停服务账号
             function pauseService() {
+                var r = window.confirm("确定要暂停此账务账号吗？");
+                if (r){
+                    var serviceId = $(this).attr("num");
+                    var pageNum = $(this).attr("pageNum");
+                    $.ajax({
+                        url:"/pauseService",
+                        data:{
+                            serviceId:serviceId
+                        },
+                        success:function (result) {
+                            console.log(result.message)
+
+                            searchServicesInServicePage(pageNum)
+                        }
+
+                    })
+                }
+            }
+            // 点击开通按钮  开通服务账号
+            function startService() {
+                var r = window.confirm("确定要开通此账务账号吗？");
+                if (r){
+                    var serviceId = $(this).attr("num");
+                    var pageNum = $(this).attr("pageNum");
+                    $.ajax({
+                        url:"/startService",
+                        data:{
+                            serviceId:serviceId
+                        },
+                        success:function (result) {
+                            console.log(result.message)
+
+                            searchServicesInServicePage(pageNum)
+                        }
+
+                    })
+                }
+            }
+            // 点击删除按钮  删除服务账号
+            function deleteService() {
+                var r = window.confirm("确定要删除此业务账号吗？删除后将不能恢复。");
+                if (r){
+                    document.getElementById("operate_result_info").style.display = "block";
+                    var serviceId = $(this).attr("num");
+                    var pageNum = $(this).attr("pageNum");
+                    $.ajax({
+                        url:"/deleteService",
+                        data:{
+                            serviceId:serviceId
+                        },
+                        success:function (result) {
+                            console.log(result.message);
+
+                            searchServicesInServicePage(pageNum)
+                        }
+                    })
+                }
 
             }
         </script>

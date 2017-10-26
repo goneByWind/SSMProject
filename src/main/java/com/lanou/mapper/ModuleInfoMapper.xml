@@ -5,6 +5,13 @@
     <id column="module_id" jdbcType="INTEGER" property="moduleId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
   </resultMap>
+  <resultMap id="ModuleInfoResultMap" type="com.lanou.bean.ModuleInfo">
+    <id column="module_id" jdbcType="INTEGER" property="moduleId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <collection property="roleInfoList"
+                column="module_id"
+                select="com.lanou.mapper.RoleInfoMapper.findRoleInfoListByModuleId"/>
+  </resultMap>
   <sql id="Base_Column_List">
     module_id, name
   </sql>
@@ -14,7 +21,14 @@
     from module_info
     where module_id = #{moduleId,jdbcType=INTEGER}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <!--多对多借助中间表查询-->
+    <select id="findModuleInfoListByRoleId" resultMap="BaseResultMap">
+      SELECT
+      <include refid="Base_Column_List" />
+      from module_info
+      WHERE module_id IN (SELECT module_id FROM role_module WHERE role_id = #{roleId})
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from module_info
     where module_id = #{moduleId,jdbcType=INTEGER}
   </delete>

@@ -23,6 +23,11 @@ public class AjaxResult {
         this.errorCode = errorCode;
     }
 
+    public AjaxResult(Integer errorCode, String message) {
+        this.errorCode = errorCode;
+        this.message = message;
+    }
+
     @Override
     public String toString() {
         return "AjaxResult{" +

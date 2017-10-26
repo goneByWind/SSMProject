@@ -10,4 +10,9 @@ public interface ServiceService {
     PageInfo<Service> selectByInfo(String osUsername, String unixHost, String idcardNo, String status, Integer pageNo, Integer pageSize);
 
     void addNew(Service service);
+
+    void updateService(Service service);
+
+    Service findById(Integer id);
+
 }

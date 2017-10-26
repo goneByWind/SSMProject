@@ -22,7 +22,9 @@ public interface AccountService {
 
     PageInfo<Account> selectByInfo(String idcardNo, String realName, String loginName, String status,Integer pageNo,Integer pageSize);
 
-    List<Account> findAccountListByIdCard(String idcardNo);
+    Account findAccountByIdCard(String idcardNo);
 
     Account findAccountByLoginName(String loginName);
+
+    Account findAccountByIdWithCascade(Integer id);
 }

@@ -81,7 +81,7 @@
       </if>
     </select>
   <!--通过身份证号码查找account对象集合-->
-  <select id="findAccountListByIdCard" resultMap="BaseResultMap">
+  <select id="findAccountByIdCard" resultMap="BaseResultMap">
     SELECT <include refid="Base_Column_List" />
     FROM account
     WHERE idcard_no = #{idcardNo}
@@ -91,6 +91,12 @@
     SELECT <include refid="Base_Column_List" />
     FROM account
     WHERE login_name = #{loginName}
+  </select>
+  <!--通过id查询,包括查询下属的serviceList-->
+  <select id="findAccountByIdWithCascade" resultMap="AccountResultMap">
+    SELECT <include refid="Base_Column_List" />
+    FROM account
+    where account_id = #{accountId}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from account
