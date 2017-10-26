@@ -2,7 +2,9 @@ package com.lanou.controller;
 
 import com.github.pagehelper.PageInfo;
 import com.lanou.bean.Account;
+import com.lanou.bean.Service;
 import com.lanou.service.AccountService;
+import com.lanou.service.ServiceService;
 import com.lanou.utils.AjaxResult;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -26,6 +28,9 @@ public class AccountController {
 
     @Resource
     private AccountService accountService;
+
+    @Resource
+    private ServiceService serviceService;
 
     @RequestMapping(value = "/accountpage_list")
     public String accountPageList(){
@@ -78,6 +83,7 @@ public class AccountController {
     }
 
     // 暂停account账户
+    /*同时暂停该account账号下属的所有service业务账号*/
     @ResponseBody
     @RequestMapping(value = "/pauseAccount")
     public AjaxResult pauseAccount(@RequestParam("accountId") Integer id){
@@ -86,31 +92,62 @@ public class AccountController {
         account.setPauseDate(new Date());
         account.setStatus("0");
         accountService.updateAccount(account);
+
+        /*实现暂停下属的所有service业务账号*/
+        Account accountByIdWithCascade = accountService.findAccountByIdWithCascade(id);
+        List<Service> serviceList = accountByIdWithCascade.getServiceList();
+        for (Service service : serviceList) {
+            service.setPauseDate(new Date());
+            service.setStatus("1");
+            serviceService.updateService(service);
+        }
         return new AjaxResult("已暂停accountId:"+id+"的账户!");
     }
 
     // 开通account账户
     @ResponseBody
     @RequestMapping(value = "/startAccount")
-    public AjaxResult startAccount(@RequestParam("accountId") Integer id){
+    public AjaxResult startAccount(@RequestParam("accountId") Integer id) throws ParseException {
         Account account = new Account();
         account.setAccountId(id);
-        account.setPauseDate(null);
+        // 开通后删除暂停时间
+        Date date = new Date();
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+        date=f.parse("0000-00-00");
+        account.setPauseDate(date);
+
         account.setStatus("1");
         accountService.updateAccount(account);
         return new AjaxResult("已开通accountId:"+id+"的账户!");
     }
 
     // 删除account账户,其实为标志位改为2,并且在前端页面不提供改,删方法
+    /*删除account账户时,要级联删除其下属的所有service账号*/
     @ResponseBody
     @RequestMapping(value = "/deleteAccount")
-    public AjaxResult deleteAccount(@RequestParam("accountId") Integer id){
+    public AjaxResult deleteAccount(@RequestParam("accountId") Integer id) throws ParseException {
         Account account = new Account();
         account.setAccountId(id);
-        account.setPauseDate(null);
+        // 删除时,顺便将暂停时间设置为0000-00-00
+        Date date = new Date();
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+        date=f.parse("0000-00-00");
+        account.setPauseDate(date);
         account.setCloseDate(new Date());
         account.setStatus("2");
         accountService.updateAccount(account);
+        /*实现暂停下属的所有service业务账号*/
+        Account accountByIdWithCascade = accountService.findAccountByIdWithCascade(id);
+        List<Service> serviceList = accountByIdWithCascade.getServiceList();
+        for (Service service : serviceList) {
+            // 删除时,顺便将暂停时间设置为0000-00-00
+            service.setPauseDate(date);
+            service.setCloseDate(new Date());
+            service.setStatus("2");
+            serviceService.updateService(service);
+        }
+
+
         return new AjaxResult("已删除accountId:"+id+"的账户!");
     }
 
