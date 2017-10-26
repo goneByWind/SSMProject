@@ -26,4 +26,7 @@ public interface ServiceMapper {
                                @Param("unixHost") String unixHost,
                                @Param("idcardNo") String idcardNo,
                                @Param("status") String status);
+
+    Service findServiceDetailsById(@Param("serviceId") Integer id);
+
 }
