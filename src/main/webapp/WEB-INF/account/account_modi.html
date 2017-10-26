@@ -1,0 +1,270 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>云科技</title>
+        <link type="text/css" rel="stylesheet" media="all" href="../styles/global.css" />
+        <link type="text/css" rel="stylesheet" media="all" href="../styles/global_color.css" />
+        <script src="/js/jquery-3.2.1.js"></script>
+        <script language="javascript" type="text/javascript">
+            // 将时间戳修改为日期类型
+            function getLocalTime(jsondate) {
+                if(jsondate!==null&&jsondate.toString().length>0){
+                    jsondate=""+jsondate+"";//因为jsonDate是number型的indexOf会报错
+                    if (jsondate.indexOf("+") > 0) {
+                        jsondate = jsondate.substring(0, jsondate.indexOf("+"));
+                    }
+                    else if (jsondate.indexOf("-") > 0) {
+                        jsondate = jsondate.substring(0, jsondate.indexOf("-"));
+                    }
+                    var date = new Date(parseInt(jsondate, 10));
+                    var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+                    var currentDate = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+                    var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+                    var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+                    var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+                    return date.getFullYear() + "-" + month + "-" + currentDate + " " + hours + ":" + minutes + ":" + seconds;
+                }
+            }
+            // 显示account细节
+            function showAccountDetailsByIdInSession() {
+                $.ajax({
+                    url:"/showAccountDetailsByIdInSession",
+                    type:"post",
+                    success:function (result) {
+                        var account = result.data;
+                        $("#accountId").val(account.accountId);
+                        $("#recommenderId").val(account.recommenderId);
+                        $("#recommenderIdcardNo").val(result.message);
+                        $("#loginName").val(account.loginName);
+                        if (account.status=="0"){
+                            $("#cpcDate").val(getLocalTime(account.pauseDate));
+                            $("select#status option[value='0']").attr('selected','true')}
+                        if (account.status=="1"){
+                            $("#cpcDate").val(getLocalTime(account.createDate));
+                            $("select#status option[value='1']").attr('selected','true')}
+                        if (account.status=="2"){
+                            $("#cpcDate").val(getLocalTime(account.closeDate));
+                            $("select#status option[value='2']").attr('selected','true')}
+                        $("#realName").val(account.realName);
+                        $("#idcardNo").val(account.idcardNo);
+                        $("#birthdate").val(getLocalTime(account.birthdate));
+                        if (account.gender=="男"){
+                            $("input:radio[value='男']").attr('checked','true');
+                        }
+                        if (account.gender=="女"){
+                            $("input:radio[value='女']").attr('checked','true');
+                        }
+                        if (account.occupation=="干部"){
+                            $("select#occupation option[value='0']").attr('selected','true')}
+                        if (account.occupation=="学生"){
+                            $("select#occupation option[value='1']").attr('selected','true')}
+                        if (account.occupation=="技术人员"){
+                            $("select#occupation option[value='2']").attr('selected','true')}
+                        if (account.occupation=="其他"){
+                            $("select#occupation option[value='3']").attr('selected','true')}
+                        $("#telephone").val(account.telephone);
+                        $("#email").val(account.email);
+                        $("#mailaddress").val(account.mailaddress);
+                        $("#zipcode").val(account.zipcode);
+                        $("#qq").val(account.qq);
+                        $("#lastLoginTime").val(account.lastLoginTime);
+                        $("#lastLoginIp").val(account.lastLoginIp);
+                        //$("#select_id [value='3']").remove();   //删除Select中Value='3'的Option
+                    }
+                })
+            }
+            showAccountDetailsByIdInSession();
+            // 修改
+            function modifyAccount() {
+                $.ajax({
+                    url:"/modifyAccount",
+                    type:"post",
+                    data:{
+                        accountId:$("#accountId").val(),
+                        realName:$("#realName").val(),
+                        /*注意:这里设成了推荐人的身份证号,因为本人的身份证号是不能改的,这样正好就利用这个字段把推荐人的身份证号传回去了*/
+                        /*不改身份证号了,意思应该是要改推荐人的ID*/
+                        loginName:$("#loginName").val(),
+                        telephone:$("#telephone").val(),
+                        recommenderId:$("#recommenderId").val(),
+                        email:$("#email").val(),
+                        gender:$("input[type='radio']:checked").val(),
+                        mailaddress:$("#mailaddress").val(),
+                        zipcode:$("#zipcode").val(),
+                        qq:$("#qq").val(),
+                        occupation:$("select#occupation option:selected").html()
+                    },
+                    success:function (result) {
+                        console.log(result.message);
+                        window.location.href='/accountpage_list'
+                    }
+                })
+            }
+            //保存成功的提示信息
+            function showResult() {
+                showResultDiv(true);
+                window.setTimeout("showResultDiv(false);", 3000);
+            }
+            function showResultDiv(flag) {
+                var divResult = document.getElementById("save_result_info");
+                if (flag)
+                    divResult.style.display = "block";
+                else
+                    divResult.style.display = "none";
+            }
+
+            //显示修改密码的信息项
+            function showPwd(chkObj) {
+                if (chkObj.checked)
+                    document.getElementById("divPwds").style.display = "block";
+                else
+                    document.getElementById("divPwds").style.display = "none";
+            }
+        </script>
+    </head>
+    <body>
+        <!--Logo区域开始-->
+        <div id="header">
+            <img src="../images/logo.png" alt="logo" class="left"/>
+            <a href="#">[退出]</a>            
+        </div>
+        <!--Logo区域结束-->
+        <!--导航区域开始-->
+        <div id="navi">
+            <ul id="menu">
+                <li><a href="../index.html" class="index_off"></a></li>
+                <li><a href="../role/role_list.html" class="role_off"></a></li>
+                <li><a href="../admin/admin_list.html" class="admin_off"></a></li>
+                <li><a href="../fee/fee_list.html" class="fee_off"></a></li>
+                <li><a href="../account/account_list.html" class="account_on"></a></li>
+                <li><a href="../service/service_list.html" class="service_off"></a></li>
+                <li><a href="../bill/bill_list.html" class="bill_off"></a></li>
+                <li><a href="../report/report_list.html" class="report_off"></a></li>
+                <li><a href="../user/user_info.html" class="information_off"></a></li>
+                <li><a href="../user/user_modi_pwd.html" class="password_off"></a></li>
+            </ul>
+        </div>
+        <!--导航区域结束-->
+        <!--主要区域开始-->
+        <div id="main">  
+            <!--保存成功或者失败的提示消息-->          
+            <div id="save_result_info" class="save_fail">保存失败，旧密码错误！</div>
+            <form action="" method="" class="main_form">
+                    <!--必填项-->
+                    <div class="text_info clearfix"><span>账务账号ID：</span></div>
+                    <div class="input_info">
+                        <input type="text" value="10" readonly class="readonly" id="accountId" />
+                    </div>
+                    <div class="text_info clearfix"><span>姓名：</span></div>
+                    <div class="input_info">
+                        <input type="text" value="张三" id="realName" />
+                        <span class="required">*</span>
+                        <div class="validate_msg_long error_msg">20长度以内的汉字、字母和数字的组合</div>
+                    </div>
+                    <div class="text_info clearfix"><span>身份证：</span></div>
+                    <div class="input_info">
+                        <input type="text" value="230198765432123456" readonly class="readonly" id="idcardNo" />
+                    </div>
+                    <div class="text_info clearfix"><span>登录账号：</span></div>
+                    <div class="input_info">
+                        <input type="text" value="user1" readonly class="readonly" id="loginName"  />
+                        <!--                
+                        <div class="change_pwd">
+                            <input id="chkModiPwd" type="checkbox" onclick="showPwd(this);" />
+                            <label for="chkModiPwd">修改密码</label>
+                        </div>
+                        -->
+                    </div>
+                    <!--修改密码部分-->
+                    <!--
+                    <div id="divPwds">
+                        <div class="text_info clearfix"><span>旧密码：</span></div>
+                        <div class="input_info">
+                            <input type="password"  />
+                            <span class="required">*</span>
+                            <div class="validate_msg_long">30长度以内的字母、数字和下划线的组合</div>
+                        </div>
+                        <div class="text_info clearfix"><span>新密码：</span></div>
+                        <div class="input_info">
+                            <input type="password"  />
+                            <span class="required">*</span>
+                            <div class="validate_msg_long">30长度以内的字母、数字和下划线的组合</div>
+                        </div>
+                        <div class="text_info clearfix"><span>重复新密码：</span></div>
+                        <div class="input_info">
+                            <input type="password"  />
+                            <span class="required">*</span>
+                            <div class="validate_msg_long">两次密码必须相同</div>
+                        </div>  
+                    </div>      
+                    -->             
+                    <div class="text_info clearfix"><span>电话：</span></div>
+                    <div class="input_info">
+                        <input type="text" class="width200" id="telephone"/>
+                        <span class="required">*</span>
+                        <div class="validate_msg_medium error_msg">正确的电话号码格式：手机或固话</div>
+                    </div>
+                    <div class="text_info clearfix"><span>推荐人账号ID：</span></div>
+                    <div class="input_info">
+                        <input type="text" id="recommenderId"/>
+                        <!--正确的身份证号码格式-->
+                        <div class="validate_msg_long error_msgs"></div>
+                    </div>
+                    <div class="text_info clearfix"><span>生日：</span></div>
+                    <div class="input_info">
+                        <input type="text" value="由身份证号计算而来" readonly class="readonly" id="birthdate" />
+                    </div>
+                    <div class="text_info clearfix"><span>Email：</span></div>
+                    <div class="input_info">
+                        <input type="text" class="width200" id="email"/>
+                        <div class="validate_msg_medium">50长度以内，合法的 Email 格式</div>
+                    </div> 
+                    <div class="text_info clearfix"><span>职业：</span></div>
+                    <div class="input_info">
+                        <select id="occupation">
+                            <option value="0">干部</option>
+                            <option value="1">学生</option>
+                            <option value="2">技术人员</option>
+                            <option value="3">其他</option>
+                        </select>                        
+                    </div>
+                    <div class="text_info clearfix"><span>性别：</span></div>
+                    <div class="input_info fee_type">
+                        <!--onclick="feeTypeChange(1);"-->
+                        <input type="radio" name="radSex" id="female" value="女"  />
+                        <label for="female">女</label>
+                        <!--onclick="feeTypeChange(2);"-->
+                        <input type="radio" name="radSex" id="male" value="男"  />
+                        <label for="male">男</label>
+                    </div> 
+                    <div class="text_info clearfix"><span>通信地址：</span></div>
+                    <div class="input_info">
+                        <input type="text" class="width350" id="mailaddress"/>
+                        <div class="validate_msg_tiny">50长度以内</div>
+                    </div> 
+                    <div class="text_info clearfix"><span>邮编：</span></div>
+                    <div class="input_info">
+                        <input type="text" id="zipcode"/>
+                        <div class="validate_msg_long">6位数字</div>
+                    </div> 
+                    <div class="text_info clearfix"><span>QQ：</span></div>
+                    <div class="input_info">
+                        <input type="text" id="qq"/>
+                        <div class="validate_msg_long">5到13位数字</div>
+                    </div>                
+                    <!--操作按钮-->
+                    <div class="button_info clearfix">
+                        <input type="button" value="保存" class="btn_save" onclick="modifyAccount();" />
+                        <input type="button" value="取消" class="btn_save" onclick="location.href='/accountpage_list';" />
+                    </div>
+                </form>  
+        </div>
+        <!--主要区域结束-->
+        <div id="footer">
+            <span>[源自北美的技术，最优秀的师资，最真实的企业环境，最适用的实战项目]</span>
+            <br />
+            <span>版权所有(C)云科技有限公司 </span>
+        </div>
+    </body>
+</html>

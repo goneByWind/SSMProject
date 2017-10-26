@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="SSM_004_Day11_Program_NetCtoss:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="SSM_004_Day11_Program_NetCtoss.war">
+      <element id="artifact" artifact-name="SSM_004_Day11_Program_NetCtoss:war exploded" />
+    </root>
+  </artifact>
+</component>

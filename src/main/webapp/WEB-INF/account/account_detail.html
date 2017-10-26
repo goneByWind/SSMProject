@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>云科技</title>
+        <link type="text/css" rel="stylesheet" media="all" href="../styles/global.css" />
+        <link type="text/css" rel="stylesheet" media="all" href="../styles/global_color.css" />
+        <script src="/js/jquery-3.2.1.js"></script>
+        <script>
+            // 将时间戳修改为日期类型
+            function getLocalTime(jsondate) {
+                if(jsondate!==null&&jsondate.toString().length>0){
+                    jsondate=""+jsondate+"";//因为jsonDate是number型的indexOf会报错
+                    if (jsondate.indexOf("+") > 0) {
+                        jsondate = jsondate.substring(0, jsondate.indexOf("+"));
+                    }
+                    else if (jsondate.indexOf("-") > 0) {
+                        jsondate = jsondate.substring(0, jsondate.indexOf("-"));
+                    }
+                    var date = new Date(parseInt(jsondate, 10));
+                    var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+                    var currentDate = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+                    var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+                    var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+                    var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+                    return date.getFullYear() + "-" + month + "-" + currentDate + " " + hours + ":" + minutes + ":" + seconds;
+                }
+            }
+            // 显示account细节
+            function showAccountDetailsByIdInSession() {
+                $.ajax({
+                    url:"/showAccountDetailsByIdInSession",
+                    type:"post",
+                    success:function (result) {
+                        var account = result.data;
+                        $("#accountId").val(account.accountId);
+                        $("#recommenderId").val(account.recommenderId);
+                        $("#recommenderIdcardNo").val(result.message);
+                        $("#loginName").val(account.loginName);
+                        if (account.status=="0"){
+                            $("#cpcDate").val(getLocalTime(account.pauseDate));
+                            $("select#status option[value='0']").attr('selected','true')}
+                        if (account.status=="1"){
+                            $("#cpcDate").val(getLocalTime(account.createDate));
+                            $("select#status option[value='1']").attr('selected','true')}
+                        if (account.status=="2"){
+                            $("#cpcDate").val(getLocalTime(account.closeDate));
+                            $("select#status option[value='2']").attr('selected','true')}
+                        $("#realName").val(account.realName);
+                        $("#idcardNo").val(account.idcardNo);
+                        $("#birthdate").val(getLocalTime(account.birthdate));
+                        if (account.gender=="男"){
+                            $("input:radio[value='男']").attr('checked','true');
+                        }
+                        if (account.gender=="女"){
+                            $("input:radio[value='女']").attr('checked','true');
+                        }
+                        if (account.occupation=="干部"){
+                            $("select#occupation option[value='0']").attr('selected','true')}
+                        if (account.occupation=="学生"){
+                            $("select#occupation option[value='1']").attr('selected','true')}
+                        if (account.occupation=="技术人员"){
+                            $("select#occupation option[value='2']").attr('selected','true')}
+                        if (account.occupation=="其他"){
+                            $("select#occupation option[value='3']").attr('selected','true')}
+                        $("#telephone").val(account.telephone);
+                        $("#email").val(account.email);
+                        $("#mailaddress").val(account.mailaddress);
+                        $("#zipcode").val(account.zipcode);
+                        $("#qq").val(account.qq);
+                        $("#lastLoginTime").val(account.lastLoginTime);
+                        $("#lastLoginIp").val(account.lastLoginIp);
+                        //$("#select_id [value='3']").remove();   //删除Select中Value='3'的Option
+                    }
+                })
+            }
+            showAccountDetailsByIdInSession();
+        </script>
+    </head>
+    <body>
+        <!--Logo区域开始-->
+        <div id="header">
+            <img src="../images/logo.png" alt="logo" class="left" />
+            <a href="#">[退出]</a>            
+        </div>
+        <!--Logo区域结束-->
+        <!--导航区域开始-->
+        <div id="navi">
+            <ul id="menu">
+                <li><a href="../index.html" class="index_off"></a></li>
+                <li><a href="../role/role_list.html" class="role_off"></a></li>
+                <li><a href="../admin/admin_list.html" class="admin_off"></a></li>
+                <li><a href="../fee/fee_list.html" class="fee_off"></a></li>
+                <li><a href="../account/account_list.html" class="account_on"></a></li>
+                <li><a href="../service/service_list.html" class="service_off"></a></li>
+                <li><a href="../bill/bill_list.html" class="bill_off"></a></li>
+                <li><a href="../report/report_list.html" class="report_off"></a></li>
+                <li><a href="../user/user_info.html" class="information_off"></a></li>
+                <li><a href="../user/user_modi_pwd.html" class="password_off"></a></li>
+            </ul>
+        </div>
+        <!--导航区域结束-->
+        <!--主要区域开始-->
+        <div id="main">            
+            <form action="" method="" class="main_form">
+                <!--必填项-->
+                <div class="text_info clearfix"><span>账务账号ID：</span></div>
+                <div class="input_info"><input type="text" value="10" readonly class="readonly" id="accountId" /></div>
+                <div class="text_info clearfix"><span>姓名：</span></div>
+                <div class="input_info"><input type="text" value="张三" readonly class="readonly" id="realName" /></div>
+                <div class="text_info clearfix"><span>身份证：</span></div>
+                <div class="input_info">
+                    <input type="text" value="230198765432123456" readonly class="readonly"  id="idcardNo"/>
+                </div>
+                <div class="text_info clearfix"><span>登录账号：</span></div>
+                <div class="input_info">
+                    <input type="text" value="user1" readonly class="readonly" id="loginName" />
+                </div>                   
+                <div class="text_info clearfix"><span>电话：</span></div>
+                <div class="input_info">
+                    <input type="text" class="width200 readonly" readonly value="13687865435"  id="telephone"/>
+                </div>
+                <div class="text_info clearfix"><span>推荐人账务账号ID：</span></div>
+                <div class="input_info"><input type="text" readonly class="readonly" value="5" id="recommenderId" /></div>
+                <div class="text_info clearfix"><span>推荐人身份证号码：</span></div>
+                <div class="input_info"><input type="text" readonly class="readonly" value="230198765432123456" id="recommenderIdcardNo" /></div>
+                <div class="text_info clearfix"><span>状态：</span></div>
+                <div class="input_info">
+                    <select disabled id="status">
+                        <option value="1">开通</option>
+                        <option value="0">暂停</option>
+                        <option value="2">删除</option>
+                    </select>                        
+                </div>                    
+                <div class="text_info clearfix"><span>开通/暂停/删除时间：</span></div>
+                <div class="input_info"><input type="text" readonly class="readonly" value="2013/01/21 12:00:00 " id="cpcDate" /></div>
+
+                <div class="text_info clearfix"><span>上次登录时间：</span></div>
+                <div class="input_info"><input type="text" readonly class="readonly" value="2013/02/21 12:00:00" id="lastLoginTime" /></div>
+                <div class="text_info clearfix"><span>上次登录IP：</span></div>
+                <div class="input_info"><input type="text" readonly class="readonly" value="192.168.0.100" id="lastLoginIp" /></div>
+                <!--可选项数据-->
+                <div class="text_info clearfix"><span>生日：</span></div>
+                <div class="input_info">
+                    <input type="text" readonly class="readonly" value="1980/01/21，由身份证计算而来" id="birthdate" />
+                </div>
+                <div class="text_info clearfix"><span>Email：</span></div>
+                <div class="input_info">
+                    <input type="text" class="width350 readonly" readonly value="aa@aa.com" id="email" />
+                </div> 
+                <div class="text_info clearfix"><span>职业：</span></div>
+                <div class="input_info">
+                    <select disabled id="occupation">
+                        <option value="0">干部</option>
+                        <option value="1">学生</option>
+                        <option value="2">技术人员</option>
+                        <option value="3">其他</option>
+                    </select>                        
+                </div>
+                <div class="text_info clearfix"><span>性别：</span></div>
+                <div class="input_info fee_type">
+                    <input type="radio" name="radSex" id="female" disabled value="女" />
+                    <label for="female">女</label>
+                    <input type="radio" name="radSex" id="male" disabled value="男" />
+                    <label for="male">男</label>
+                </div> 
+                <div class="text_info clearfix"><span>通信地址：</span></div>
+                <div class="input_info"><input type="text" class="width350 readonly" readonly value="北京市海淀区北三环中路甲18号中鼎大厦" id="mailaddress" /></div>
+                <div class="text_info clearfix"><span>邮编：</span></div>
+                <div class="input_info"><input type="text" class="readonly" readonly value="100098" id="zipcode" /></div>
+                <div class="text_info clearfix"><span>QQ：</span></div>
+                <div class="input_info"><input type="text" class="readonly" readonly value="12345678" id="qq" /></div>
+                <!--操作按钮-->
+                <div class="button_info clearfix">
+                    <input type="button" value="返回" class="btn_save" onclick="location.href='/accountpage_list';" />
+                </div>
+            </form>  
+        </div>
+        <!--主要区域结束-->
+        <div id="footer">
+            <span>[源自北美的技术，最优秀的师资，最真实的企业环境，最适用的实战项目]</span>
+            <br />
+            <span>版权所有(C)云科技有限公司 </span>
+        </div>
+    </body>
+</html>
