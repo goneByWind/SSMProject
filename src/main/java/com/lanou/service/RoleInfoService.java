@@ -27,4 +27,7 @@ public interface RoleInfoService {
 
     // 通过roleName查找roleId
     RoleInfo findRoleByRoleName(String roleName);
+
+    // 用过id删除Role对象
+    void deleteRoleById(Integer roleId);
 }

@@ -130,4 +130,12 @@ public class RoleInfoController {
         }
         return new AjaxResult("添加完成");
     }
+    // 删除功能
+    @ResponseBody
+    @RequestMapping(value = "/deleteRoleInfo")
+    public AjaxResult deleteRoleInfo(@RequestParam(value = "roleId") Integer roleId){
+        roleInfoService.deleteRoleById(roleId);
+        roleInfoService.deleteRoleModules(roleId);
+        return new AjaxResult("成功删除roleInfo对象以及它的所有中间表对象");
+    }
 }

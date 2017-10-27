@@ -1,6 +1,7 @@
 package com.lanou.bean;
 
 import java.util.Date;
+import java.util.List;
 
 public class AdminInfo {
     private Integer adminId;
@@ -16,6 +17,30 @@ public class AdminInfo {
     private String email;
 
     private Date enrolldate;
+
+    private List<RoleInfo> roleInfoList;
+
+    @Override
+    public String toString() {
+        return "AdminInfo{" +
+                "adminId=" + adminId +
+                ", adminCode='" + adminCode + '\'' +
+                ", password='" + password + '\'' +
+                ", name='" + name + '\'' +
+                ", telephone='" + telephone + '\'' +
+                ", email='" + email + '\'' +
+                ", enrolldate=" + enrolldate +
+                ", roleInfoList=" + roleInfoList +
+                '}';
+    }
+
+    public List<RoleInfo> getRoleInfoList() {
+        return roleInfoList;
+    }
+
+    public void setRoleInfoList(List<RoleInfo> roleInfoList) {
+        this.roleInfoList = roleInfoList;
+    }
 
     public Integer getAdminId() {
         return adminId;

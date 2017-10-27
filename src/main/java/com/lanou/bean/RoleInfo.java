@@ -9,13 +9,24 @@ public class RoleInfo {
 
     private List<ModuleInfo> moduleInfoList;
 
+    private List<AdminInfo> adminInfoList;
+
     @Override
     public String toString() {
         return "RoleInfo{" +
                 "roleId=" + roleId +
                 ", name='" + name + '\'' +
                 ", moduleInfoList=" + moduleInfoList +
+                ", adminInfoList=" + adminInfoList +
                 '}';
+    }
+
+    public List<AdminInfo> getAdminInfoList() {
+        return adminInfoList;
+    }
+
+    public void setAdminInfoList(List<AdminInfo> adminInfoList) {
+        this.adminInfoList = adminInfoList;
     }
 
     public List<ModuleInfo> getModuleInfoList() {

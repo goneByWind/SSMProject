@@ -106,8 +106,25 @@
                     }
                 })
             }
+            // 删除
             function deleteRoleInfo() {
-                
+                var r = window.confirm("确定要删除此角色吗？");
+                if (r==true){
+                    document.getElementById("operate_result_info").style.display = "block";
+                    var roleId  = $(this).attr("num");
+                    var pageNum = $(this).attr("pageNum");
+                    $.ajax({
+                        url:"/deleteRoleInfo",
+                        type:"post",
+                        data:{
+                            roleId:roleId
+                        },
+                        success:function (result) {
+                            console.log(result.message);
+                            showAllMessagesWithSeparatePages(pageNum);
+                        }
+                    })
+                }
             }
         </script>
     </head>
@@ -123,7 +140,7 @@
             <ul id="menu">
                 <li><a href="../index.html" class="index_off"></a></li>
                 <li><a href="/rolepage_list" class="role_on"></a></li>
-                <li><a href="../admin/admin_list.html" class="admin_off"></a></li>
+                <li><a href="/adminpage_list" class="admin_off"></a></li>
                 <li><a href="/costpage_list" class="fee_off"></a></li>
                 <li><a href="/accountpage_list" class="account_off"></a></li>
                 <li><a href="/servicepage_list" class="service_off"></a></li>

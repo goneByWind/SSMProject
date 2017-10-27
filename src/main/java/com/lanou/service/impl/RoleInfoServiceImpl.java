@@ -68,4 +68,9 @@ public class RoleInfoServiceImpl implements RoleInfoService {
     public RoleInfo findRoleByRoleName(String roleName) {
         return roleInfoMapper.findRoleByRoleName(roleName);
     }
+
+    @Override
+    public void deleteRoleById(Integer roleId) {
+        roleInfoMapper.deleteByPrimaryKey(roleId);
+    }
 }

@@ -18,7 +18,9 @@ public interface RoleInfoMapper {
 
     int updateByPrimaryKey(RoleInfo record);
 
-    List<RoleInfo>findRoleInfoListByModuleId(@Param("moduleId") Integer moduleId);
+    List<RoleInfo> findRoleInfoListByModuleId(@Param("moduleId") Integer moduleId);
+
+    List<RoleInfo> findRoleInfoListByAdminId(@Param("adminId") Integer adminId);
 
     List<RoleInfo> findAll();
 

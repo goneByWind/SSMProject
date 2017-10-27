@@ -10,6 +10,18 @@
     <result column="email" jdbcType="VARCHAR" property="email" />
     <result column="enrolldate" jdbcType="TIMESTAMP" property="enrolldate" />
   </resultMap>
+  <resultMap id="AdminRoleResultMap" type="com.lanou.bean.AdminInfo">
+    <id column="admin_id" jdbcType="INTEGER" property="adminId" />
+    <result column="admin_code" jdbcType="VARCHAR" property="adminCode" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="telephone" jdbcType="VARCHAR" property="telephone" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="enrolldate" jdbcType="TIMESTAMP" property="enrolldate" />
+    <collection property="roleInfoList"
+                column="admin_id"
+                select="com.lanou.mapper.RoleInfoMapper.findRoleInfoListByAdminId"/>
+  </resultMap>
   <sql id="Base_Column_List">
     admin_id, admin_code, password, name, telephone, email, enrolldate
   </sql>
@@ -18,6 +30,13 @@
     <include refid="Base_Column_List" />
     from admin_info
     where admin_id = #{adminId,jdbcType=INTEGER}
+  </select>
+  <!--用于role-admin多对多-->
+  <select id="findAdminInfoListByRoleId" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM admin_info
+    WHERE admin_id IN (SELECT admin_id FROM admin_role WHERE role_id = #{roleId} )
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from admin_info
