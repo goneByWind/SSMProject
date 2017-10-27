@@ -4,11 +4,110 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title></title>
         <link type="text/css" rel="stylesheet" media="all" href="../styles/global.css" />
-        <link type="text/css" rel="stylesheet" media="all" href="../styles/global_color.css" /> 
+        <link type="text/css" rel="stylesheet" media="all" href="../styles/global_color.css" />
+        <script src="/js/jquery-3.2.1.js"></script>
         <script language="javascript" type="text/javascript">
             function deleteRole() {
                 var r = window.confirm("确定要删除此角色吗？");
                 document.getElementById("operate_result_info").style.display = "block";
+            }
+            // 添加新的一行,用于显示全部功能
+            function addNewTr(msg,pageMsg) {
+                var td1 = $("<td></td>").html(msg.roleId);
+                var td2 = $("<td></td>").html(msg.name);
+                var td3 = $("<td></td>");
+                for (var i=0;i<msg.moduleInfoList.length;i++){
+                    var moduleInfoName = msg.moduleInfoList[i].name;
+                    $("<span></span>").html(moduleInfoName+" ").appendTo(td3);}
+                var td4 = $("<td></td>");
+                $("<input type='button' value='修改' class='btn_modify'>").click(saveIdToSession).attr("num",msg.roleId).attr("pageNum",pageMsg.pageNum).appendTo(td4);
+                $("<input type='button' value='删除' class='btn_delete'>").click(deleteRoleInfo).attr("num",msg.roleId).attr("pageNum",pageMsg.pageNum).appendTo(td4);
+                var tr_roleInfo = $("<tr></tr>").append(td1).append(td2).append(td3).append(td4);
+                $("#tab").append(tr_roleInfo)
+            }
+            // 显示全部及分页
+            function showAllMessagesWithSeparatePages(pageNo){
+                $.ajax({
+                    url:"/showAllMessagesWithSeparatePages",
+                    type:"post",
+                    data:{
+                        pageNo:pageNo,
+                        pageSize:5
+                    },
+                    success:function (result) {
+                        console.log(result.message);
+                        // 最开始要进行一下页面内容(tbody id=tab)和页面导航(span id=pages)的清空
+                        $("#tab").children().remove();
+                        $("#pages").children().remove();
+
+                        var pageInfo = result.data;
+                        console.log(pageInfo);
+                        var listPresent = pageInfo.list;
+                        for (var i=0;i<listPresent.length;i++){
+                            addNewTr(listPresent[i],pageInfo)
+                        }
+                        // 分页导航栏:
+                        // (0)首页
+                        var firstPageNo = pageInfo.firstPage;
+                        var firstPage=$("<a></a>").html("首页").attr("id","pageNo"+firstPageNo).attr("fuzzySearch",true).click(toClickPage);
+                        $("#pages").append(firstPage);
+                        // (1)上一页
+                        if (pageInfo.isFirstPage){
+                            var prePage = $("<a></a>").html("上一页")
+                        }else {
+                            var preNo = pageInfo.prePage;
+                            var prePage = $("<a></a>").html("上一页").attr("id","pageNo"+preNo).attr("fuzzySearch",true).click(toClickPage);
+                        }
+                        $("#pages").append(prePage);
+                        // (2)页码
+                        for (var i=0;i<pageInfo.pages;i++){
+                            // 设置页码:1,2,3...
+                            var pageNoX=$("<a></a>").html(i+1).attr("id","pageNo"+(i+1)).attr("fuzzySearch",true).click(toClickPage);
+                            // 为当前页添加背景属性,以作区分
+                            if ((i+1)==pageInfo.pageNum){
+                                pageNoX.attr("class","current_page")
+                            }
+                            // 将页码填入分页导航栏
+                            $("#pages").append(pageNoX)
+                        }
+                        // (3)下一页
+                        if (pageInfo.isLastPage){
+                            var nextPage = $("<a></a>").html("下一页")
+                        }else {
+                            var nextNo = pageInfo.nextPage;
+                            var nextPage = $("<a></a>").html("下一页").attr("id","pageNo"+nextNo).attr("fuzzySearch",true).click(toClickPage);
+                        }
+                        $("#pages").append(nextPage);
+                        // (4)尾页
+                        var lastPageNo = pageInfo.lastPage;
+                        var lastPage=$("<a></a>").html("尾页").attr("id","pageNo"+lastPageNo).attr("fuzzySearch",true).click(toClickPage);
+                        $("#pages").append(lastPage);
+                    }
+                })
+            }
+            showAllMessagesWithSeparatePages(1);
+            // 跳转到点击的页面
+            function toClickPage() {
+                var pageNo=$(this).attr("id").slice(6);
+                console.log(pageNo);
+                showAllMessagesWithSeparatePages(pageNo)
+            }
+            // 保存本模块主键id到session域
+            function saveIdToSession() {
+                var roleId = $(this).attr("num");
+                $.ajax({
+                    url:"/saveIdToSessionForRoleInfo",
+                    type:"post",
+                    data:{
+                        roleId:roleId
+                    },
+                    success:function () {
+                        window.location.href="/rolepage_modi";
+                    }
+                })
+            }
+            function deleteRoleInfo() {
+                
             }
         </script>
     </head>
@@ -23,11 +122,11 @@
         <div id="navi">                        
             <ul id="menu">
                 <li><a href="../index.html" class="index_off"></a></li>
-                <li><a href="../role/role_list.html" class="role_on"></a></li>
+                <li><a href="/rolepage_list" class="role_on"></a></li>
                 <li><a href="../admin/admin_list.html" class="admin_off"></a></li>
-                <li><a href="../fee/fee_list.html" class="fee_off"></a></li>
-                <li><a href="../account/account_list.html" class="account_off"></a></li>
-                <li><a href="../service/service_list.html" class="service_off"></a></li>
+                <li><a href="/costpage_list" class="fee_off"></a></li>
+                <li><a href="/accountpage_list" class="account_off"></a></li>
+                <li><a href="/servicepage_list" class="service_off"></a></li>
                 <li><a href="../bill/bill_list.html" class="bill_off"></a></li>
                 <li><a href="../report/report_list.html" class="report_off"></a></li>
                 <li><a href="../user/user_info.html" class="information_off"></a></li>
@@ -40,7 +139,7 @@
             <form action="" method="">
                 <!--查询-->
                 <div class="search_add">
-                    <input type="button" value="增加" class="btn_add" onclick="location.href='role_add.html';" />
+                    <input type="button" value="增加" class="btn_add" onclick="location.href='/rolepage_add';" />
                 </div>  
                 <!--删除的操作提示-->
                 <div id="operate_result_info" class="operate_success">
@@ -50,12 +149,15 @@
                 <!--数据区域：用表格展示数据-->     
                 <div id="data">                      
                     <table id="datalist">
+                        <thead>
                         <tr>                            
                             <th>角色 ID</th>
                             <th>角色名称</th>
                             <th class="width600">拥有的权限</th>
                             <th class="td_modi"></th>
-                        </tr>                      
+                        </tr>
+                        </thead>
+                        <tbody id="tab">
                         <tr>
                             <td>1</td>
                             <td>贾强</td>
@@ -92,6 +194,7 @@
                                 <input type="button" value="删除" class="btn_delete" />
                             </td>
                         </tr>
+                        </tbody>
                     </table>
                 </div> 
                 <!--分页-->

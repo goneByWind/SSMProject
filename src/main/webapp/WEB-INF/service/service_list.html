@@ -132,12 +132,12 @@
                     detailDiv.style.display = "none";
             }
 
-            //开通或暂停
+            // 开通或暂停
             function setState() {
                 var r = window.confirm("确定要开通此业务账号吗？");
                 document.getElementById("operate_result_info").style.display = "block";
             }
-            //
+            // 保存本模块主键id到session域
             function saveIdToSession() {
                 var serviceId = $(this).attr("num");
                 var flag = $(this).attr("flag");
@@ -233,7 +233,7 @@
         <div id="navi">                        
             <ul id="menu">
                 <li><a href="../index.html" class="index_off"></a></li>
-                <li><a href="../role/role_list.html" class="role_off"></a></li>
+                <li><a href="/rolepage_list" class="role_off"></a></li>
                 <li><a href="../admin/admin_list.html" class="admin_off"></a></li>
                 <li><a href="/costpage_list" class="fee_off"></a></li>
                 <li><a href="/accountpage_list" class="account_off"></a></li>

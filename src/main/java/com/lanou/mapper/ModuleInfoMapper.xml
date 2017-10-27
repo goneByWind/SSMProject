@@ -28,6 +28,12 @@
       from module_info
       WHERE module_id IN (SELECT module_id FROM role_module WHERE role_id = #{roleId})
     </select>
+  <!--查找全部的权限   不用级联-->
+    <select id="findAll" resultMap="BaseResultMap">
+      SELECT
+      <include refid="Base_Column_List" />
+      from module_info
+    </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from module_info
     where module_id = #{moduleId,jdbcType=INTEGER}

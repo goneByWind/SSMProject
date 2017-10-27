@@ -29,9 +29,39 @@
     WHERE role_id
     IN (SELECT role_id FROM role_module WHERE module_id=#{moduleId})
   </select>
+  <!--查询全部,要用级联查询相关的moduleList-->
+  <select id="findAll" resultMap="RoleInfoResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM role_info
+  </select>
+  <!--使用多对多级联:通过id查找roleInfo,以及相关的List:moduleInfoList-->
+  <select id="findRoleInfoById" resultMap="RoleInfoResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM role_info
+    WHERE role_id=#{roleId}
+  </select>
+  <!--通过roleName查找roleId-->
+  <!--
+      重点:出了很长时间错,最后靠傲然...
+      如果我写resultMap="BaseResultMap",那么我要把role_id,name,也就是所有BaseResultMap中有的字段都返回
+      原来只写成返回role_id,所以会报错,记住!!!!
+  -->
+  <select id="findRoleByRoleName" resultMap="BaseResultMap">
+    SELECT
+    role_id,name
+    FROM role_info
+    WHERE name = #{roleName}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from role_info
     where role_id = #{roleId,jdbcType=INTEGER}
+  </delete>
+  <!--修改前的准备工作,删除role_id相关的所有中间表role_module条目-->
+  <delete id="deleteRoleModules" parameterType="java.lang.Integer">
+    DELETE FROM role_module
+    WHERE role_id = #{roleId}
   </delete>
   <insert id="insert" parameterType="com.lanou.bean.RoleInfo">
     insert into role_info (role_id, name)
@@ -40,21 +70,26 @@
   <insert id="insertSelective" parameterType="com.lanou.bean.RoleInfo">
     insert into role_info
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="roleId != null">
-        role_id,
-      </if>
-      <if test="name != null">
-        name,
-      </if>
+    <if test="roleId != null">
+      role_id,
+    </if>
+    <if test="name != null">
+      name,
+    </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="roleId != null">
-        #{roleId,jdbcType=INTEGER},
-      </if>
-      <if test="name != null">
-        #{name,jdbcType=VARCHAR},
-      </if>
+    <if test="roleId != null">
+      #{roleId,jdbcType=INTEGER},
+    </if>
+    <if test="name != null">
+      #{name,jdbcType=VARCHAR},
+    </if>
     </trim>
+  </insert>
+  <!--在中间表role_module中逐条插入修改后的两张表的关联主键-->
+  <insert id="insertRoleModule" parameterType="java.lang.Integer">
+    insert into role_module (role_id, module_id)
+    values (#{roleId,jdbcType=INTEGER}, #{moduleId,jdbcType=INTEGER})
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.lanou.bean.RoleInfo">
     update role_info

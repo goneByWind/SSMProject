@@ -54,26 +54,35 @@
                             console.log(moduleId);
                             $("#moduleInfo input[type='checkbox']").each(function(){
                                 if ($(this).attr("id")==moduleId){
-                                    $(this).attr("checked",true)
+                                    $(this).prop("checked",true)
                                 }
                             });
-
                         }
                     }
                 })
             }
             getRoleIdInSessionAndShowRoleName();
             // 修改功能(点击'保存'调用)
+            /*设置checked,使用prop属性,因为jq的原因如果使用attr,即使页面勾选了,也传不到后台*/
             function modifyRoleInfo() {
-                // 整理moduleInfoList对象
-
+                /*重点*/
+                // 整理moduleInfoList对象---拼接成了字符串类型
+                var text="";
+                $("#moduleInfo input[type='checkbox']").each(function(){
+                    if ($(this).prop("checked")){
+                        text+=","+$(this).attr("id").slice(8)
+                    }
+                });
                 $.ajax({
                     url:"/modifyRoleInfo",
                     type:"post",
                     data:{
                         /*1.roleId还是用session找*/
                         name:$("#roleName").val(),
-                        moduleInfoList:$("")
+                        moduleInfoList:text
+                    },
+                    success:function (result) {
+                        window.location.href='/rolepage_list'
                     }
                 })
             }

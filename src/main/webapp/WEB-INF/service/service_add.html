@@ -84,6 +84,16 @@
                             $("#searchAccountByIdcardNoResult").html("身份证号码存在~ ~")
                             var loginName = result.data.loginName;
                             $("#loginName").val(loginName);
+                            /*其实不用再跳转这个函数searchAccounts()再查一次,
+                              修改方案变成一个身份证只对应一个账号之后
+                              这时候的目的已经只是设置accountId属性了
+                              但是写好了不想改...*/
+                            /*改的写法:删去searchAccounts函数
+                             var accountId = result.data.accountId;
+                             $("#searchAccountByIdcardNoResult").html("身份证号码存在~ ~").attr("accountId",accountId)
+                             获取accountId值时用:
+                             accountId:$("#searchAccountByIdcardNoResult").attr("accountId"),
+                            * */
                             searchAccounts()
                         }
                     }
