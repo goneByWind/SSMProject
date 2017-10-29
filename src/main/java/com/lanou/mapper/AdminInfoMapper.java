@@ -19,4 +19,19 @@ public interface AdminInfoMapper {
     int updateByPrimaryKey(AdminInfo record);
 
     List<AdminInfo> findAdminInfoListByRoleId(@Param("roleId")Integer roleId);
+
+    List<AdminInfo> findAll();
+
+    AdminInfo findByAdminCode(@Param("adminCode") String adminCode);
+
+    void saveAdminRole(@Param("adminId") Integer adminId,
+                       @Param("roleId") Integer roleId);
+
+    AdminInfo findAdminByIdWithCascade(@Param("adminId") Integer adminId);
+
+    void deleteAdminRolesByAdminId(@Param("adminId") Integer adminId);
+
+    // 模糊查询
+    List<AdminInfo> selectByInfo(@Param("moduleId") Integer moduleId,
+                                 @Param("roleName") String roleName);
 }

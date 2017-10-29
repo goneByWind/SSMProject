@@ -5,6 +5,7 @@
         <title></title>
         <link type="text/css" rel="stylesheet" media="all" href="../styles/global.css" />
         <link type="text/css" rel="stylesheet" media="all" href="../styles/global_color.css" />
+        <script src="/js/jquery-3.2.1.js"></script>
         <script language="javascript" type="text/javascript">
             //保存成功的提示消息
             function showResult() {
@@ -17,6 +18,86 @@
                     divResult.style.display = "block";
                 else
                     divResult.style.display = "none";
+            }
+            // 显示全部role
+            function showAllRoles() {
+                $.ajax({
+                    url:"/showAllRoles",
+                    type:"post",
+                    success:function (result) {
+                        var roleList = result.data;
+                        for (var i=0;i<roleList.length;i++){
+                            var liX = $("<li></li>");
+                            $("<input type='checkbox'/>").attr("id","roleId"+roleList[i].roleId).appendTo(liX);
+                            $("<label></label>").html(roleList[i].name).attr("for","roleId"+roleList[i].roleId).appendTo(liX);
+                            $("#roleInfo").append(liX);
+                        }
+                        getAdminIdInSessionAndShow();
+                    }
+                })
+            }
+            showAllRoles();
+            // 去session域中取得点击"修改"所在行关联的adminId,并且回显admin及roleInfoList
+            function getAdminIdInSessionAndShow() {
+                $.ajax({
+                    url:"/getAdminIdInSession",
+                    type:"post",
+                    success:function (result) {
+                        // 回显admin信息
+                        var adminInfo = result.data;
+                        $("#name").val(adminInfo.name);
+                        $("#adminCode").val(adminInfo.adminCode);
+                        $("#telephone").val(adminInfo.telephone);
+                        $("#email").val(adminInfo.email);
+
+//                        $.each(adminInfo.roleInfoList, function (i, domEle) {
+//                            $("#roleId" + domEle.roleId).prop("checked", "true")
+//                        });
+                        // 回显修改前的RoleInfoList(for 与 each的嵌套)
+                        for (var i=0;i<adminInfo.roleInfoList.length;i++){
+                            var roleId = "roleId"+adminInfo.roleInfoList[i].roleId;
+                            console.log(roleId);
+//                            $("[name='checkbox']").prop("checked",'true');//全选
+                            /*???为什么回显就是不好使
+                            * 看了穆永瑞的之后好使啦!!!
+                            * 回显方法的调用不能放在最外面----和'显示全部'功能同级别的话,就不知道调用哪个了,所有一直复选框的回显都是不好使的!!!!!!
+                            * 解决方法:要把调用:getAdminIdInSessionAndShow()  放在showAllRoles显示全部角色的  回调函数的结尾
+                            * */
+                            $("#"+roleId).prop("checked",true);
+//                            $("#roleInfo input[type='checkbox']").each(function(){
+//                                if ($(this).attr("id")==roleId){
+//                                    $(this).prop("checked",true)
+//                                }
+//                            });
+                        }
+                    }
+                })
+            }
+            // 修改
+            function modifyAdmin() {
+                var text = "";
+                $("#roleInfo input[type='checkbox']").each(function () {
+                    if ($(this).prop("checked")){
+                        text+=","+$(this).attr("id").slice(6)
+                    }
+                });
+                $.ajax({
+                    url:"/modifyAdmin",
+                    type:"post",
+                    data:{
+                        adminCode:$("#adminCode").val(),
+                        password:$("#password").val(),
+                        name:$("#name").val(),
+                        telephone:$("#telephone").val(),
+                        email:$("#email").val(),
+                        textForRoleList:text
+                    },
+                    success:function (result) {
+                        console.log(result.message);
+                        alert(result.message);
+                        window.location.href="/adminpage_list";
+                    }
+                })
             }
         </script>
     </head>
@@ -49,43 +130,43 @@
             <form action="" method="" class="main_form">
                     <div class="text_info clearfix"><span>姓名：</span></div>
                     <div class="input_info">
-                        <input type="text" value="张三" />
+                        <input type="text" value="张三"  id="name"/>
                         <span class="required">*</span>
                         <div class="validate_msg_long error_msg">20长度以内的汉字、字母、数字的组合</div>
                     </div>
                     <div class="text_info clearfix"><span>管理员账号：</span></div>
-                    <div class="input_info"><input type="text" readonly="readonly" class="readonly" value="admin1"  /></div>
+                    <div class="input_info"><input type="text" readonly="readonly" class="readonly" value="admin1" id="adminCode"  /></div>
                     <div class="text_info clearfix"><span>电话：</span></div>
                     <div class="input_info">
-                        <input type="text" value="13111111111"  />
+                        <input type="text" value="13111111111" id="telephone" />
                         <span class="required">*</span>
                         <div class="validate_msg_long error_msg">正确的电话号码格式：手机或固话</div>
                     </div>
                     <div class="text_info clearfix"><span>Email：</span></div>
                     <div class="input_info">
-                        <input type="text" class="width200" value="aa@aa.com"/>
+                        <input type="text" class="width200" value="aa@aa.com" id="email"/>
                         <span class="required">*</span>
                         <div class="validate_msg_medium error_msg">50长度以内，正确的 email 格式</div>
                     </div>
                     <div class="text_info clearfix"><span>角色：</span></div>
                     <div class="input_info_high">
                         <div class="input_info_scroll">
-                            <ul>
-                                <li><input type="checkbox" />超级管理员</li>
-                                <li><input type="checkbox" />账务账号管理员</li>
-                                <li><input type="checkbox" />业务账号管理员</li>
-                                <li><input type="checkbox" />账务账号管理员</li>
-                                <li><input type="checkbox" />业务账号管理员</li>
-                                <li><input type="checkbox" />账务账号管理员</li>
-                                <li><input type="checkbox" />业务账号管理员</li>
+                            <ul id="roleInfo">
+                                <!--<li><input type="checkbox" />超级管理员</li>-->
+                                <!--<li><input type="checkbox" />账务账号管理员</li>-->
+                                <!--<li><input type="checkbox" />业务账号管理员</li>-->
+                                <!--<li><input type="checkbox" />账务账号管理员</li>-->
+                                <!--<li><input type="checkbox" />业务账号管理员</li>-->
+                                <!--<li><input type="checkbox" />账务账号管理员</li>-->
+                                <!--<li><input type="checkbox" />业务账号管理员</li>-->
                             </ul>
                         </div>
                         <span class="required">*</span>
                         <div class="validate_msg_tiny error_msg">至少选择一个</div>
                     </div>
                     <div class="button_info clearfix">
-                        <input type="button" value="保存" class="btn_save" onclick="showResult();" />
-                        <input type="button" value="取消" class="btn_save" />
+                        <input type="button" value="保存" class="btn_save" onclick="modifyAdmin();" />
+                        <input type="button" value="取消" class="btn_save" onclick="window.location.href='/adminpage_list';" />
                     </div>
                 </form>  
         </div>

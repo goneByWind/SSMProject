@@ -31,8 +31,9 @@
                             var liX = $("<li></li>");
                             $("<input type ='checkbox'/>").attr("id","moduleId"+moduleList[i].moduleId).appendTo(liX);
                             $("<label></label>").html(moduleList[i].name).attr("for","moduleId"+moduleList[i].moduleId).appendTo(liX);
-                            $("#moduleInfo").append(liX)
+                            $("#moduleInfo").append(liX);
                         }
+                        getRoleIdInSessionAndShowRoleName();
                     }
                 })
             }
@@ -47,6 +48,11 @@
                         // 回显raleName
                         var roleInfo = result.data;
                         $("#roleName").val(roleInfo.name);
+
+                        // 唐继池的回显方法
+//                        $.each(roleInfo.moduleInfoList, function (i, domEle) {
+//                            $("#moduleId" + domEle.moduleId).prop("checked", "true")
+//                        });
                         // 回显修改前的moduleInfoList
                         /*这个radio的回显写了很久,应该有更好的方法,并且多去理解下面这个写法!!!*/
                         for (var i=0;i<roleInfo.moduleInfoList.length;i++){
@@ -61,7 +67,7 @@
                     }
                 })
             }
-            getRoleIdInSessionAndShowRoleName();
+
             // 修改功能(点击'保存'调用)
             /*设置checked,使用prop属性,因为jq的原因如果使用attr,即使页面勾选了,也传不到后台*/
             function modifyRoleInfo() {

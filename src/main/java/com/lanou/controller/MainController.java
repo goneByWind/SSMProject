@@ -11,8 +11,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Scope("prototype")
 public class MainController {
 
-    @RequestMapping("/homepage")
+    @RequestMapping("/home")
     public String homePage(){
-        return "fee/fee_list";
+        return "index";
     }
+
+    @RequestMapping("/login")
+    public String loginPage(){
+        return "login";
+    }
+    // 账单主页
+    @RequestMapping(value = "/billpage_list")
+    public String billPageList(){
+        return "bill/bill_list";
+    }
+    // 报表主页
+    @RequestMapping(value = "/reportpage_list")
+    public String reportPageList(){
+        return "report/report_list";
+    }
+    // 个人信息主页
+    @RequestMapping(value = "/userpage_list")
+    public String userPageList(){
+        return "user/user_info";
+    }
+    // 修改密码页面
+    @RequestMapping(value = "/userpage_modi_pwd")
+    public String userPageModiPwd(){
+        return "user/user_modi_pwd";
+    }
+
+
 }

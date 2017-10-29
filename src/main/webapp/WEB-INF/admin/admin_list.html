@@ -4,9 +4,134 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title></title>
         <link type="text/css" rel="stylesheet" media="all" href="../styles/global.css" />
-        <link type="text/css" rel="stylesheet" media="all" href="../styles/global_color.css" /> 
+        <link type="text/css" rel="stylesheet" media="all" href="../styles/global_color.css" />
+        <script src="/js/jquery-3.2.1.js"></script>
         <script language="javascript" type="text/javascript">
-            //显示角色详细信息
+            // 将时间戳修改为日期类型
+            function getLocalTime(jsondate) {
+                if(jsondate!==null&&jsondate.toString().length>0){
+                    jsondate=""+jsondate+"";//因为jsonDate是number型的indexOf会报错
+                    if (jsondate.indexOf("+") > 0) {
+                        jsondate = jsondate.substring(0, jsondate.indexOf("+"));
+                    }
+                    else if (jsondate.indexOf("-") > 0) {
+                        jsondate = jsondate.substring(0, jsondate.indexOf("-"));
+                    }
+                    var date = new Date(parseInt(jsondate, 10));
+                    var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+                    var currentDate = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+                    var hours = date.getHours()
+                    10 ? "0" + date.getHours() : date.getHours();
+                    var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+                    var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+                    return date.getFullYear() + "-" + month + "-" + currentDate;
+                }
+            }
+            // 添加新的一行
+            function addNewTr(msg,pageMsg) {
+                var td1 = $("<td></td>");
+                $("<input type='checkbox'/>").appendTo(td1);
+                var td2 = $("<td></td>").html(msg.adminId);
+                var td3 = $("<td></td>").html(msg.name);
+                var td4 = $("<td></td>").html(msg.adminCode);
+                var td5 = $("<td></td>").html(msg.telephone);
+                var td6 = $("<td></td>").html(msg.email);
+                var td7 = $("<td></td>").html(getLocalTime(msg.enrolldate));
+                var td8 = $("<td></td>");
+                /*onmouseover='showDetail(true,this);' onmouseout='showDetail(false,this);'*/
+                var labelForTd8 = $("<a class='summary' onmouseover='showDetail(true,this);' onmouseout='showDetail(false,this);'></a>").appendTo(td8);
+                if (msg.roleInfoList.length>1){
+                    labelForTd8.html(msg.roleInfoList[0].name+"...")
+                }
+                if (msg.roleInfoList.length==1){
+                    labelForTd8.html(msg.roleInfoList[0].name)}
+                var divForTd8 = $("<div class='detail_info'></div>").appendTo(td8);
+                for(var i=0;i<msg.roleInfoList.length;i++){
+                    $("<span></span>").html(msg.roleInfoList[i].name+" ").appendTo(divForTd8);}
+                var td9 = $("<td></td>");
+                $("<input type='button' value='修改' class='btn_modify'>").click(saveIdToSession).attr("num",msg.adminId).attr("pageNum",pageMsg.pageNum).appendTo(td9);
+                $("<input type='button' value='删除' class='btn_delete'>").click(deleteAdmin).attr("num",msg.adminId).attr("pageNum",pageMsg.pageNum).appendTo(td9);
+
+                var tr_admin = $("<tr></tr>").append(td1).append(td2).append(td3).append(td4).append(td5).append(td6).append(td7).append(td8).append(td9);
+
+                $("#tab").append(tr_admin)
+            }
+            // 分页+显示全部+模糊查询
+            function showAllMessagesWithSeparatePagesForAdmin(pageNo){
+                var moduleId = $("select#selModules option:selected").val();
+                console.log(moduleId);
+                if (moduleId=="0"){
+                    moduleId=null;
+                }
+                $.ajax({
+                    url:"/showAllMessagesWithSeparatePagesForAdmin",
+                    type:"post",
+                    data:{
+                        pageNo:pageNo,
+                        pageSize:5,
+                        moduleId:moduleId,
+                        roleName:$("#roleName").val()
+                    },
+                    success:function (result) {
+                        console.log(result.message);
+                        // 最开始要进行一下页面内容(tbody id=tab)和页面导航(span id=pages)的清空
+                        $("#tab").children().remove();
+                        $("#pages").children().remove();
+
+                        var pageInfo = result.data;
+                        console.log(pageInfo);
+                        var listPresent = pageInfo.list;
+                        for (var i=0;i<listPresent.length;i++){
+                            addNewTr(listPresent[i],pageInfo)
+                        }
+                        // 分页导航栏:
+                        // (0)首页
+                        var firstPageNo = pageInfo.firstPage;
+                        var firstPage=$("<a></a>").html("首页").attr("id","pageNo"+firstPageNo).attr("fuzzySearch",true).click(toClickPage);
+                        $("#pages").append(firstPage);
+                        // (1)上一页
+                        if (pageInfo.isFirstPage){
+                            var prePage = $("<a></a>").html("上一页")
+                        }else {
+                            var preNo = pageInfo.prePage;
+                            var prePage = $("<a></a>").html("上一页").attr("id","pageNo"+preNo).attr("fuzzySearch",true).click(toClickPage);
+                        }
+                        $("#pages").append(prePage);
+                        // (2)页码
+                        for (var i=0;i<pageInfo.pages;i++){
+                            // 设置页码:1,2,3...
+                            var pageNoX=$("<a></a>").html(i+1).attr("id","pageNo"+(i+1)).attr("fuzzySearch",true).click(toClickPage);
+                            // 为当前页添加背景属性,以作区分
+                            if ((i+1)==pageInfo.pageNum){
+                                pageNoX.attr("class","current_page")
+                            }
+                            // 将页码填入分页导航栏
+                            $("#pages").append(pageNoX)
+                        }
+                        // (3)下一页
+                        if (pageInfo.isLastPage){
+                            var nextPage = $("<a></a>").html("下一页")
+                        }else {
+                            var nextNo = pageInfo.nextPage;
+                            var nextPage = $("<a></a>").html("下一页").attr("id","pageNo"+nextNo).attr("fuzzySearch",true).click(toClickPage);
+                        }
+                        $("#pages").append(nextPage);
+                        // (4)尾页
+                        var lastPageNo = pageInfo.lastPage;
+                        var lastPage=$("<a></a>").html("尾页").attr("id","pageNo"+lastPageNo).attr("fuzzySearch",true).click(toClickPage);
+                        $("#pages").append(lastPage);
+                    }
+                })
+            }
+            showAllMessagesWithSeparatePagesForAdmin(1);
+            // 跳转到点击的页面
+            function toClickPage() {
+                var pageNo=$(this).attr("id").slice(6);
+                console.log(pageNo);
+                showAllMessagesWithSeparatePagesForAdmin(pageNo)
+            }
+
+            // 显示角色详细信息
             function showDetail(flag, a) {
                 var detailDiv = a.parentNode.getElementsByTagName("div")[0];
                 if (flag) {
@@ -23,7 +148,23 @@
             //删除
             function deleteAdmin() {
                 var r = window.confirm("确定要删除此管理员吗？");
-                document.getElementById("operate_result_info").style.display = "block";
+                if (r){
+                    var adminId = $(this).attr("num");
+                    var pageNum = $(this).attr("pageNum");
+                    $.ajax({
+                        url:"/deleteAdminInfo",
+                        type:"post",
+                        data:{
+                            adminId:adminId
+                        },
+                        success:function (result) {
+                            document.getElementById("operate_result_info").style.display = "block";
+                            showAllMessagesWithSeparatePagesForAdmin(pageNum);
+                        }
+
+                    })
+                }
+
             }
             //全选
             function selectAdmins(inputObj) {
@@ -34,6 +175,23 @@
                     }
                 }
             }
+
+            // 保存本模块主键id到session域
+            function saveIdToSession() {
+                var adminId = $(this).attr("num");
+                $.ajax({
+                    url:"/saveIdToSessionForAdminInfo",
+                    type:"post",
+                    data:{
+                        adminId:adminId
+                    },
+                    success:function () {
+                        window.location.href="/adminpage_modi";
+                    }
+                })
+            }
+
+
         </script>       
     </head>
     <body>
@@ -46,7 +204,7 @@
         <!--导航区域开始-->
         <div id="navi">                        
             <ul id="menu">
-                <li><a href="../index.html" class="index_off"></a></li>
+                <li><a href="/home" class="index_off"></a></li>
                 <li><a href="/rolepage_list" class="role_off"></a></li>
                 <li><a href="/adminpage_list" class="admin_on"></a></li>
                 <li><a href="/costpage_list" class="fee_off"></a></li>
@@ -67,207 +225,213 @@
                     <div>
                         模块：
                         <select id="selModules" class="select_search">
-                            <option>全部</option>
-                            <option>角色管理</option>
-                            <option>管理员管理</option>
-                            <option>资费管理</option>
-                            <option>账务账号</option>
-                            <option>业务账号</option>
-                            <option>账单管理</option>
-                            <option>报表</option>
+                            <option value="0">全部</option>
+                            <option value="1">角色管理</option>
+                            <option value="2">管理员管理</option>
+                            <option value="3">资费管理</option>
+                            <option value="4">账务账号</option>
+                            <option value="5">业务账号</option>
+                            <option value="6">账单管理</option>
+                            <option value="7">报表</option>
                         </select>
                     </div>
-                    <div>角色：<input type="text" value="" class="text_search width200" /></div>
-                    <div><input type="button" value="搜索" class="btn_search"/></div>
+                    <div>角色：<input type="text" value="" class="text_search width200" id="roleName" /></div>
+                    <div><input type="button" value="搜索" class="btn_search" onclick="showAllMessagesWithSeparatePagesForAdmin(1)"/></div>
                     <input type="button" value="密码重置" class="btn_add" onclick="resetPwd();" />
-                    <input type="button" value="增加" class="btn_add" onclick="location.href='admin_add.html';" />
+                    <input type="button" value="增加" class="btn_add" onclick="location.href='/adminpage_add';" />
                 </div>
                 <!--删除和密码重置的操作提示-->
                 <div id="operate_result_info" class="operate_fail">
                     <img src="../images/close.png" onclick="this.parentNode.style.display='none';" />
-                    <span>删除失败！数据并发错误。</span><!--密码重置失败！数据并发错误。-->
+                    <span>删除成功</span>
+                    <!--删除失败！数据并发错误。-->
+                    <!--密码重置失败！数据并发错误。-->
                 </div> 
                 <!--数据区域：用表格展示数据-->     
                 <div id="data">            
                     <table id="datalist">
-                        <tr>
-                            <th class="th_select_all">
-                                <input type="checkbox" onclick="selectAdmins(this);" />
-                                <span>全选</span>
-                            </th>
-                            <th>管理员ID</th>
-                            <th>姓名</th>
-                            <th>登录名</th>
-                            <th>电话</th>
-                            <th>电子邮件</th>
-                            <th>授权日期</th>
-                            <th class="width100">拥有角色</th>
-                            <th></th>
-                        </tr>                      
-                        <tr>
-                            <td><input type="checkbox" /></td>
-                            <td>1</td>
-                            <td>贾强</td>
-                            <td>admin</td>
-                            <td>13077332357</td>
-                            <td>jiaqiang123@qq.com.cn</td>
-                            <td>2011-31-12</td>
-                            <td>
-                                <a class="summary"  onmouseover="showDetail(true,this);" onmouseout="showDetail(false,this);">超级管理员...</a>
-                                <!--浮动的详细信息-->
-                                <div class="detail_info">
-                                    超级管理员，角色管理员，账单管理员，报表管理员，业务账号管理员，账务账号管理员，aa，bb
-                                </div>
-                            </td>
-                            <td class="td_modi">
-                                <input type="button" value="修改" class="btn_modify" onclick="location.href='admin_modi.html';" />
-                                <input type="button" value="删除" class="btn_delete" onclick="deleteAdmin();" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox" /></td>
-                            <td>2</td>
-                            <td>贾强</td>
-                            <td>admin</td>
-                            <td>13077332357</td>
-                            <td>jiaqiang123@qq.com.cn</td>
-                            <td>2011-31-12</td>
-                            <td>
-                                <a class="summary"  onmouseover="showDetail(true,this);" onmouseout="showDetail(false,this);">超级管理员...</a>
-                                <!--浮动的详细信息-->
-                                <div class="detail_info">
-                                    超级管理员，角色管理员
-                                </div>
-                            </td>
-                            <td class="td_modi">
-                                <input type="button" value="修改" class="btn_modify" />
-                                <input type="button" value="删除" class="btn_delete" onclick="deleteAdmin();" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox" /></td>
-                            <td>3</td>
-                            <td>贾强</td>
-                            <td>admin</td>
-                            <td>13077332357</td>
-                            <td>jiaqiang123@qq.com.cn</td>
-                            <td>2011-31-12</td>
-                            <td>
-                                <a class="summary"  onmouseover="showDetail(true,this);" onmouseout="showDetail(false,this);">超级管理员...</a>
-                                <!--浮动的详细信息-->
-                                <div class="detail_info">
-                                    超级管理员，角色管理员，账单管理员，报表管理员，业务账号管理员，账务账号管理员
-                                </div>
-                            </td>
-                            <td class="td_modi">
-                                <input type="button" value="修改" class="btn_modify" />
-                                <input type="button" value="删除" class="btn_delete" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox" /></td>
-                            <td>4</td>
-                            <td>贾强</td>
-                            <td>admin</td>
-                            <td>13077332357</td>
-                            <td>jiaqiang123@qq.com.cn</td>
-                            <td>2011-31-12</td>
-                            <td>
-                                <a class="summary"  onmouseover="showDetail(true,this);" onmouseout="showDetail(false,this);">超级管理员</a>
-                                <!--浮动的详细信息-->
-                                <div class="detail_info">
-                                    超级管理员
-                                </div>
-                            </td>
-                            <td class="td_modi">
-                                <input type="button" value="修改" class="btn_modify" />
-                                <input type="button" value="删除" class="btn_delete" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox" /></td>
-                            <td>5</td>
-                            <td>贾强</td>
-                            <td>admin</td>
-                            <td>13077332357</td>
-                            <td>jiaqiang123@qq.com.cn</td>
-                            <td>2011-31-12</td>
-                            <td>超级管理员</td>
-                            <td class="td_modi">
-                                <input type="button" value="修改" class="btn_modify" />
-                                <input type="button" value="删除" class="btn_delete" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox" /></td>
-                            <td>6</td>
-                            <td>贾强</td>
-                            <td>admin</td>
-                            <td>13077332357</td>
-                            <td>jiaqiang123@qq.com.cn</td>
-                            <td>2011-31-12</td>
-                            <td>超级管理员</td>
-                            <td class="td_modi">
-                                <input type="button" value="修改" class="btn_modify" />
-                                <input type="button" value="删除" class="btn_delete" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox" /></td>
-                            <td>7</td>
-                            <td>贾强</td>
-                            <td>admin</td>
-                            <td>13077332357</td>
-                            <td>jiaqiang123@qq.com.cn</td>
-                            <td>2011-31-12</td>
-                            <td>超级管理员</td>
-                            <td class="td_modi">
-                                <input type="button" value="修改" class="btn_modify" />
-                                <input type="button" value="删除" class="btn_delete" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox" /></td>
-                            <td>8</td>
-                            <td>贾强</td>
-                            <td>admin</td>
-                            <td>13077332357</td>
-                            <td>jiaqiang123@qq.com.cn</td>
-                            <td>2011-31-12</td>
-                            <td>超级管理员</td>
-                            <td class="td_modi">
-                                <input type="button" value="修改" class="btn_modify" />
-                                <input type="button" value="删除" class="btn_delete" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox" /></td>
-                            <td>9</td>
-                            <td>贾强</td>
-                            <td>admin</td>
-                            <td>13077332357</td>
-                            <td>jiaqiang123@qq.com.cn</td>
-                            <td>2011-31-12</td>
-                            <td>超级管理员</td>
-                            <td class="td_modi">
-                                <input type="button" value="修改" class="btn_modify" />
-                                <input type="button" value="删除" class="btn_delete" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><input type="checkbox" /></td>
-                            <td>10</td>
-                            <td>贾强</td>
-                            <td>admin</td>
-                            <td>13077332357</td>
-                            <td>jiaqiang123@qq.com.cn</td>
-                            <td>2011-31-12</td>
-                            <td>超级管理员</td>
-                            <td class="td_modi">
-                                <input type="button" value="修改" class="btn_modify" />
-                                <input type="button" value="删除" class="btn_delete" />
-                            </td>
-                        </tr>
+                        <thead>
+                            <tr>
+                                <th class="th_select_all">
+                                    <input type="checkbox" onclick="selectAdmins(this);" />
+                                    <span>全选</span>
+                                </th>
+                                <th>管理员ID</th>
+                                <th>姓名</th>
+                                <th>登录名</th>
+                                <th>电话</th>
+                                <th>电子邮件</th>
+                                <th>授权日期</th>
+                                <th class="width100">拥有角色</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tab">
+                            <tr>
+                                <td><input type="checkbox" /></td>
+                                <td>1</td>
+                                <td>贾强</td>
+                                <td>admin</td>
+                                <td>13077332357</td>
+                                <td>jiaqiang123@qq.com.cn</td>
+                                <td>2011-31-12</td>
+                                <td>
+                                    <a class="summary"  onmouseover="showDetail(true,this);" onmouseout="showDetail(false,this);">超级管理员...</a>
+                                    <!--浮动的详细信息-->
+                                    <div class="detail_info">
+                                        超级管理员，角色管理员，账单管理员，报表管理员，业务账号管理员，账务账号管理员，aa，bb
+                                    </div>
+                                </td>
+                                <td class="td_modi">
+                                    <input type="button" value="修改" class="btn_modify" onclick="location.href='admin_modi.html';" />
+                                    <input type="button" value="删除" class="btn_delete" onclick="deleteAdmin();" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" /></td>
+                                <td>2</td>
+                                <td>贾强</td>
+                                <td>admin</td>
+                                <td>13077332357</td>
+                                <td>jiaqiang123@qq.com.cn</td>
+                                <td>2011-31-12</td>
+                                <td>
+                                    <a class="summary"  onmouseover="showDetail(true,this);" onmouseout="showDetail(false,this);">超级管理员...</a>
+                                    <!--浮动的详细信息-->
+                                    <div class="detail_info">
+                                        超级管理员，角色管理员
+                                    </div>
+                                </td>
+                                <td class="td_modi">
+                                    <input type="button" value="修改" class="btn_modify" />
+                                    <input type="button" value="删除" class="btn_delete" onclick="deleteAdmin();" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" /></td>
+                                <td>3</td>
+                                <td>贾强</td>
+                                <td>admin</td>
+                                <td>13077332357</td>
+                                <td>jiaqiang123@qq.com.cn</td>
+                                <td>2011-31-12</td>
+                                <td>
+                                    <a class="summary"  onmouseover="showDetail(true,this);" onmouseout="showDetail(false,this);">超级管理员...</a>
+                                    <!--浮动的详细信息-->
+                                    <div class="detail_info">
+                                        超级管理员，角色管理员，账单管理员，报表管理员，业务账号管理员，账务账号管理员
+                                    </div>
+                                </td>
+                                <td class="td_modi">
+                                    <input type="button" value="修改" class="btn_modify" />
+                                    <input type="button" value="删除" class="btn_delete" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" /></td>
+                                <td>4</td>
+                                <td>贾强</td>
+                                <td>admin</td>
+                                <td>13077332357</td>
+                                <td>jiaqiang123@qq.com.cn</td>
+                                <td>2011-31-12</td>
+                                <td>
+                                    <a class="summary"  onmouseover="showDetail(true,this);" onmouseout="showDetail(false,this);">超级管理员</a>
+                                    <!--浮动的详细信息-->
+                                    <div class="detail_info">
+                                        超级管理员
+                                    </div>
+                                </td>
+                                <td class="td_modi">
+                                    <input type="button" value="修改" class="btn_modify" />
+                                    <input type="button" value="删除" class="btn_delete" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" /></td>
+                                <td>5</td>
+                                <td>贾强</td>
+                                <td>admin</td>
+                                <td>13077332357</td>
+                                <td>jiaqiang123@qq.com.cn</td>
+                                <td>2011-31-12</td>
+                                <td>超级管理员</td>
+                                <td class="td_modi">
+                                    <input type="button" value="修改" class="btn_modify" />
+                                    <input type="button" value="删除" class="btn_delete" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" /></td>
+                                <td>6</td>
+                                <td>贾强</td>
+                                <td>admin</td>
+                                <td>13077332357</td>
+                                <td>jiaqiang123@qq.com.cn</td>
+                                <td>2011-31-12</td>
+                                <td>超级管理员</td>
+                                <td class="td_modi">
+                                    <input type="button" value="修改" class="btn_modify" />
+                                    <input type="button" value="删除" class="btn_delete" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" /></td>
+                                <td>7</td>
+                                <td>贾强</td>
+                                <td>admin</td>
+                                <td>13077332357</td>
+                                <td>jiaqiang123@qq.com.cn</td>
+                                <td>2011-31-12</td>
+                                <td>超级管理员</td>
+                                <td class="td_modi">
+                                    <input type="button" value="修改" class="btn_modify" />
+                                    <input type="button" value="删除" class="btn_delete" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" /></td>
+                                <td>8</td>
+                                <td>贾强</td>
+                                <td>admin</td>
+                                <td>13077332357</td>
+                                <td>jiaqiang123@qq.com.cn</td>
+                                <td>2011-31-12</td>
+                                <td>超级管理员</td>
+                                <td class="td_modi">
+                                    <input type="button" value="修改" class="btn_modify" />
+                                    <input type="button" value="删除" class="btn_delete" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" /></td>
+                                <td>9</td>
+                                <td>贾强</td>
+                                <td>admin</td>
+                                <td>13077332357</td>
+                                <td>jiaqiang123@qq.com.cn</td>
+                                <td>2011-31-12</td>
+                                <td>超级管理员</td>
+                                <td class="td_modi">
+                                    <input type="button" value="修改" class="btn_modify" />
+                                    <input type="button" value="删除" class="btn_delete" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" /></td>
+                                <td>10</td>
+                                <td>贾强</td>
+                                <td>admin</td>
+                                <td>13077332357</td>
+                                <td>jiaqiang123@qq.com.cn</td>
+                                <td>2011-31-12</td>
+                                <td>超级管理员</td>
+                                <td class="td_modi">
+                                    <input type="button" value="修改" class="btn_modify" />
+                                    <input type="button" value="删除" class="btn_delete" />
+                                </td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
                 <!--分页-->

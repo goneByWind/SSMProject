@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * Created by dllo on 17/10/26.
@@ -124,7 +125,7 @@ public class RoleInfoController {
         Integer roleId = role.getRoleId();
         // 逐条插入中间表的数据
         for (int i=0;i<moduleInfos.length()/2;i++){
-            Character c = moduleInfos.charAt(i*2 + 1);
+            char c = moduleInfos.charAt(i * 2 + 1);
             Integer moduleId = Character.getNumericValue(c);
             roleInfoService.saveRoleModules(roleId,moduleId);
         }
@@ -137,5 +138,13 @@ public class RoleInfoController {
         roleInfoService.deleteRoleById(roleId);
         roleInfoService.deleteRoleModules(roleId);
         return new AjaxResult("成功删除roleInfo对象以及它的所有中间表对象");
+    }
+
+    // 查找全部role
+    @ResponseBody
+    @RequestMapping(value = "/showAllRoles")
+    public AjaxResult showAllRoles(){
+        List<RoleInfo> roleInfoList = roleInfoService.findAllRoles();
+        return new AjaxResult(roleInfoList,0,"返回全部roles");
     }
 }

@@ -20,4 +20,14 @@ public class test {
 
         System.out.println(date);
     }
+
+    @Test
+    public void test2(){
+        String string1 = new String (",100,105");
+        for (int i=0;i<string1.length()/4;i++){
+            String substring2 = string1.substring(i * 4 + 1, (i + 1) * 4 );
+            int i1 = Integer.parseInt(substring2);
+            System.out.println(i1);
+        }
+    }
 }

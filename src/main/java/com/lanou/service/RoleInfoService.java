@@ -3,6 +3,8 @@ package com.lanou.service;
 import com.github.pagehelper.PageInfo;
 import com.lanou.bean.RoleInfo;
 
+import java.util.List;
+
 /**
  * Created by dllo on 17/10/26.
  */
@@ -30,4 +32,7 @@ public interface RoleInfoService {
 
     // 用过id删除Role对象
     void deleteRoleById(Integer roleId);
+
+    // 查找全部roles
+    List<RoleInfo> findAllRoles();
 }

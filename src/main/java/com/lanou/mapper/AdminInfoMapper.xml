@@ -38,9 +38,54 @@
     FROM admin_info
     WHERE admin_id IN (SELECT admin_id FROM admin_role WHERE role_id = #{roleId} )
   </select>
+  <!--级联显示全部-->
+  <select id="findAll" resultMap="AdminRoleResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM admin_info
+  </select>
+  <!--通过adminCode查找Admin对象-->
+  <select id="findByAdminCode" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM admin_info
+    WHERE admin_code=#{adminCode}
+  </select>
+  <!--通过adminId查找,用有级联的resultMaop-->
+  <select id="findAdminByIdWithCascade" resultMap="AdminRoleResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM admin_info
+    WHERE admin_id=#{adminId}
+  </select>
+  <!--模糊查询,查询admin,条件为roleName(模糊匹配)和moduleId-->
+  <select id="selectByInfo" resultMap="AdminRoleResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM admin_info
+    WHERE admin_id IN (
+    SELECT a.admin_id FROM admin_info a
+    LEFT JOIN admin_role ar ON a.admin_id=ar.admin_id
+    LEFT JOIN role_info ri ON ri.role_id=ar.role_id
+    LEFT JOIN role_module rm ON rm.role_id=ri.role_id
+    <where>
+      <if test="moduleId!=null">
+        AND rm.module_id=#{moduleId}
+      </if>
+      <if test="roleName!=null &amp;&amp; roleName.length()>0">
+        AND ri.name LIKE CONCAT(CONCAT('%',#{roleName}),'%')
+      </if>
+    </where>
+    )
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from admin_info
     where admin_id = #{adminId,jdbcType=INTEGER}
+  </delete>
+  <!--通过adminId删除中间表admin_role中的条目-->
+  <delete id="deleteAdminRolesByAdminId">
+    DELETE FROM admin_role
+    WHERE admin_id = #{adminId}
   </delete>
   <insert id="insert" parameterType="com.lanou.bean.AdminInfo">
     insert into admin_info (admin_id, admin_code, password, 
@@ -98,6 +143,11 @@
         #{enrolldate,jdbcType=TIMESTAMP},
       </if>
     </trim>
+  </insert>
+  <!--插入中间表admin_role-->
+  <insert id="saveAdminRole" parameterType="java.lang.Integer">
+    INSERT INTO admin_role (admin_id,role_id)
+    VALUES (#{adminId,jdbcType=INTEGER},#{roleId,jdbcType=INTEGER})
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.lanou.bean.AdminInfo">
     update admin_info
