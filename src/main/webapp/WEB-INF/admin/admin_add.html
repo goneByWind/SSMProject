@@ -26,10 +26,10 @@
                 console.log(pwd1)
                 console.log(pwd2)
                 if (pwd1!=pwd2){
-                    $("#passwordMustSame").html("两次密码必须相同!")
+                    $("#passwordMustSame").html("两次密码必须相同")
                 }
                 if (pwd1==pwd2){
-                    $("#passwordMustSame").html("")
+                    $("#passwordMustSame").html(" ")
                 }
             }
             // 显示全部role
@@ -52,12 +52,41 @@
             showAllRoles();
             // 添加新的Admin
             function addNewAdminInfo() {
+                if ($("#errorTip1").html()=="不能为空，且为20以内长度的字母、数字和汉字的组合"||$("#errorTip1").html()=="管理员名称已经存在"){
+                    alert("请完成管理员名称的验证!!!");
+                    return;
+                }
+                if ($("#errorTip2").html()=="30长度以内的字母、数字和下划线的组合"||$("#errorTip2").html()=="管理员账号已经存在"){
+                    alert("请完成管理员账号的验证!!!");
+                    return;
+                }
+                if ($("#errorTip3").html()=="30长度以内的字母、数字和下划线的组合"){
+                    alert("请完成密码的验证!!!");
+                    return;
+                }
+                if ($("#passwordMustSame").html()=="两次密码必须相同"){
+                    alert("重复密码与密码输入不一致!!!");
+                    return;
+                }
+                if ($("#errorTip4").html()=="请输入正确的手机号码格式"){
+                    alert("手机号码验证未通过!!!");
+                    return;
+                }
+                if ($("#errorTip5").html()=="请输入正确的Email"){
+                    alert("Email格式验证未通过!!!");
+                    return;
+                }
                 var text = "";
                 $("#roleInfo input[type='checkbox']").each(function () {
                     if ($(this).prop("checked")){
                         text+=","+$(this).attr("id").slice(6)
                     }
                 });
+                /*判断,至少选择一个权限!!*/
+                if (text==""){
+                    alert("至少选择一个权限!");
+                    return;
+                }
                 $.ajax({
                     url:"/addNewAdminInfo",
                     type:"post",
@@ -73,6 +102,108 @@
                         console.log(result.message);
                         alert(result.message);
                         window.location.href="/adminpage_list";
+                    }
+                })
+            }
+
+
+            /*去后台进行验证:管理员Name*/
+            function judgeAdminName() {
+                var adminName = $("#name").val();
+                $.ajax({
+                    url:"/judgeAdminName",
+                    type:"post",
+                    data:{
+                        adminName:adminName
+                    },
+                    success:function (result) {
+                        if (result.errorCode==2){
+                            $("#errorTip1").html("验证成功!");
+                        }
+                        if (result.errorCode==1){
+                            $("#errorTip1").html("管理员名称已经存在");
+                        }
+                        if (result.errorCode==0){
+                            $("#errorTip1").html("不能为空，且为20以内长度的字母、数字和汉字的组合");
+                        }
+                    }
+                })
+            }
+            /*去后台进行验证:管理员账号adminCode*/
+            function judgeAdminCode() {
+                var adminCode = $("#adminCode").val();
+                $.ajax({
+                    url:"/judgeAdminCode",
+                    type:"post",
+                    data:{
+                        adminCode:adminCode
+                    },
+                    success:function (result) {
+                        if (result.errorCode==2){
+                            $("#errorTip2").html("验证成功!");
+                        }
+                        if (result.errorCode==1){
+                            $("#errorTip2").html("管理员账号已经存在");
+                        }
+                        if (result.errorCode==0){
+                            $("#errorTip2").html("30长度以内的字母、数字和下划线的组合");
+                        }
+                    }
+                })
+            }
+            /*去后端判断:验证登录密码:loginPasswd*/
+            function judgeLoginPasswd() {
+                var reg = /^[a-zA-Z\d\_]{1,30}$/;
+                var loginPasswd = $("#password").val();
+                $.ajax({
+                    url:"/judgeLoginPasswd",
+                    type:"post",
+                    data:{
+                        loginPasswd:loginPasswd
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip3").html("验证成功!");
+                        }else {
+                            $("#errorTip3").html("30长度以内的字母、数字和下划线的组合");
+                        }
+                    }
+                })
+            }
+            /*去后端判断:验证手机号码:telephone*/
+            function judgeTelephone() {
+                var telephone = $("#telephone").val();
+                $.ajax({
+                    url:"/judgeTelephone",
+                    type:"post",
+                    data:{
+                        telephone:telephone
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip4").html("验证成功!");
+                        }else {
+                            $("#errorTip4").html("请输入正确的手机号码格式");
+                        }
+                    }
+                })
+            }
+            /*去后端判断:Email*/
+            function judgeEmail() {
+                // var reg = /^\w+[-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+                var email = $("#email").val();
+                $.ajax({
+                    url:"/judgeAccountEmail",
+                    type:"post",
+                    data:{
+                        email:email
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip5").html("验证成功!");
+                        }else {
+                            $("#errorTip5").html("请输入正确的Email");
+                        }
                     }
                 })
             }
@@ -107,39 +238,39 @@
             <form action="" method="" class="main_form">
                     <div class="text_info clearfix"><span>姓名：</span></div>
                     <div class="input_info">
-                        <input type="text" id="name"/>
+                        <input type="text" id="name" onchange="judgeAdminName()"/>
                         <span class="required">*</span>
-                        <div class="validate_msg_long">20长度以内的汉字、字母、数字的组合</div>
+                        <div class="validate_msg_long" id="errorTip1">不能为空，且为20以内长度的字母、数字和汉字的组合</div>
                     </div>
                     <div class="text_info clearfix"><span>管理员账号：</span></div>
                     <div class="input_info">
-                        <input type="text"  id="adminCode" />
+                        <input type="text"  id="adminCode" onchange="judgeAdminCode()"/>
                         <span class="required">*</span>
-                        <div class="validate_msg_long">30长度以内的字母、数字和下划线的组合</div>
+                        <div class="validate_msg_long" id="errorTip2">30长度以内的字母、数字和下划线的组合</div>
                     </div>
                     <div class="text_info clearfix"><span>密码：</span></div>
                     <div class="input_info">
-                        <input type="password" id="password" />
+                        <input type="password" id="password" onchange="judgeLoginPasswd()" />
                         <span class="required">*</span>
-                        <div class="validate_msg_long error_msg">30长度以内的字母、数字和下划线的组合</div>
+                        <div class="validate_msg_long" id="errorTip3">30长度以内的字母、数字和下划线的组合</div>
                     </div>
                     <div class="text_info clearfix"><span>重复密码：</span></div>
                     <div class="input_info">
                         <input type="password" id="password2" onchange="repeatpwd()" />
                         <span class="required">*</span>
-                        <div class="validate_msg_long error_msg" id="passwordMustSame"></div>
+                        <div class="validate_msg_long" id="passwordMustSame"></div>
                     </div>      
                     <div class="text_info clearfix"><span>电话：</span></div>
                     <div class="input_info">
-                        <input type="text" class="width200" id="telephone"/>
+                        <input type="text" class="width200" id="telephone" onchange="judgeTelephone()"/>
                         <span class="required">*</span>
-                        <div class="validate_msg_medium error_msg">正确的电话号码格式：手机或固话</div>
+                        <div class="validate_msg_medium" id="errorTip4">请输入正确的手机号码格式</div>
                     </div>
                     <div class="text_info clearfix"><span>Email：</span></div>
                     <div class="input_info">
-                        <input type="text" class="width200" id="email"/>
+                        <input type="text" class="width200" id="email" onchange="judgeEmail()"/>
                         <span class="required">*</span>
-                        <div class="validate_msg_medium error_msg">50长度以内，正确的 email 格式</div>
+                        <div class="validate_msg_medium" id="errorTip5">请输入正确的Email</div>
                     </div>
                     <div class="text_info clearfix"><span>角色：</span></div>
                     <div class="input_info_high">
@@ -155,7 +286,7 @@
                             </ul>
                         </div>
                         <span class="required">*</span>
-                        <div class="validate_msg_tiny error_msg">至少选择一个</div>
+                        <div class="validate_msg_tiny">至少选择一个</div>
                     </div>
                     <div class="button_info clearfix">
                         <input type="button" value="保存" class="btn_save" onclick="addNewAdminInfo();" />

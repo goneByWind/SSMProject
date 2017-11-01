@@ -68,7 +68,12 @@
     SELECT <include refid="Base_Column_List" />
     FROM cost ORDER BY base_duration
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <!--验证是否重名-->
+    <select id="findByName" resultMap="BaseResultMap">
+      SELECT <include refid="Base_Column_List" />
+      FROM cost WHERE name=#{costName}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from cost
     where cost_id = #{costId,jdbcType=INTEGER}
   </delete>

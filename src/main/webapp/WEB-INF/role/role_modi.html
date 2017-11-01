@@ -71,6 +71,10 @@
             // 修改功能(点击'保存'调用)
             /*设置checked,使用prop属性,因为jq的原因如果使用attr,即使页面勾选了,也传不到后台*/
             function modifyRoleInfo() {
+                if ($("#errorTip1").html()=="不能为空，且为20以内长度的字母、数字和汉字的组合"||$("#errorTip1").html()=="角色名称已经存在"){
+                    alert("请完成角色名称的验证!!!");
+                    return;
+                }
                 /*重点*/
                 // 整理moduleInfoList对象---拼接成了字符串类型
                 var text="";
@@ -79,6 +83,10 @@
                         text+=","+$(this).attr("id").slice(8)
                     }
                 });
+                if (text==""){
+                    alert("至少选择一个权限!");
+                    return;
+                }
                 $.ajax({
                     url:"/modifyRoleInfo",
                     type:"post",
@@ -89,6 +97,28 @@
                     },
                     success:function (result) {
                         window.location.href='/rolepage_list'
+                    }
+                })
+            }
+            /*去后台进行验证:roleName*/
+            function judgeRoleNameModi() {
+                var roleName = $("#roleName").val();
+                $.ajax({
+                    url:"/judgeRoleNameModi",
+                    type:"post",
+                    data:{
+                        roleName:roleName
+                    },
+                    success:function (result) {
+                        if (result.errorCode==2){
+                            $("#errorTip1").html("验证成功!");
+                        }
+                        if (result.errorCode==1){
+                            $("#errorTip1").html("角色名称已经存在");
+                        }
+                        if (result.errorCode==0){
+                            $("#errorTip1").html("不能为空，且为20以内长度的字母、数字和汉字的组合");
+                        }
                     }
                 })
             }
@@ -124,9 +154,9 @@
             <form action="" method="" class="main_form">
                 <div class="text_info clearfix"><span>角色名称：</span></div>
                 <div class="input_info">
-                    <input type="text" class="width200" value="超级管理员" id="roleName" />
+                    <input type="text" class="width200" value="超级管理员" id="roleName" onchange="judgeRoleNameModi()" />
                     <span class="required">*</span>
-                    <div class="validate_msg_medium error_msg">不能为空，且为20长度的字母、数字和汉字的组合</div>
+                    <div class="validate_msg_medium " id="errorTip1"></div>
                 </div>                    
                 <div class="text_info clearfix"><span>设置权限：</span></div>
                 <div class="input_info_high">

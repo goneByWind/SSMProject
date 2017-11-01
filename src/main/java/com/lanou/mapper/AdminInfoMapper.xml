@@ -78,6 +78,16 @@
     </where>
     )
   </select>
+    <select id="findAdminByName" resultMap="BaseResultMap">
+      SELECT <include refid="Base_Column_List" />
+      FROM admin_info
+      WHERE name=#{adminName}
+    </select>
+  <select id="findAdminByAdminCode" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" />
+    FROM admin_info
+    WHERE admin_code=#{adminCode}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from admin_info
     where admin_id = #{adminId,jdbcType=INTEGER}

@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by dllo on 17/10/25.
@@ -146,5 +148,38 @@ public class ServiceController {
         return new AjaxResult(serviceForShowDetails,0,"显示点击的service的详细信息");
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/judgeIP")
+    public boolean judgeIP(@RequestParam("unixHost") String ip){
+        // 判断ip地址的正则表达式
+        String rex = "^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\."
+                +"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
+                +"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
+                +"(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$";
 
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(ip);
+
+        if (m.find()){
+            return true;
+        }
+        return false;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/judgeOSUsername")
+    public boolean judgeOSUsername(@RequestParam("osUsername") String osUsername){
+        // 8长度以内的字母、数字和下划线的组合
+        String rex = "^[a-zA-Z\\d\\_]{1,8}$";
+
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(osUsername);
+
+        if (m.find()){
+
+         return true;
+
+        }
+        return false;
+    }
 }

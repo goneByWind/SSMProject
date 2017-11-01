@@ -48,4 +48,9 @@ public class ServiceServiceImpl implements ServiceService {
         return serviceMapper.findServiceDetailsById(id);
     }
 
+    @Override
+    public com.lanou.bean.Service findByOsUsername(String osUsername) {
+        return serviceMapper.findByOsUsername(osUsername);
+    }
+
 }

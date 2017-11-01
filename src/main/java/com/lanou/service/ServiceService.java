@@ -15,4 +15,5 @@ public interface ServiceService {
 
     Service findById(Integer id);
 
+    Service findByOsUsername(String osUsername);
 }

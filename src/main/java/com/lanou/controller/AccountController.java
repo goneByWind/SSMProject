@@ -18,6 +18,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by dllo on 17/10/23.
@@ -228,5 +230,150 @@ public class AccountController {
             return new AjaxResult(accountByLoginName,1,"返回账务账号");
         }
         return new AjaxResult(0);
+    }
+    @ResponseBody
+    @RequestMapping("/judageRealName")
+    public boolean judageRealName(@RequestParam("realName")String realName){
+        String rex = "^[a-zA-Z\\d\\u2E80-\\u9FFF]{1,20}$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(realName);
+        if (m.find()){
+            return true;
+        }else {
+            return false;
+        }
+    }
+    @ResponseBody
+    @RequestMapping("/judageIdCardNo")
+    public boolean judageIdCardNo(@RequestParam("idcardNo")String idcardNo){
+        String rex = "((11|12|13|14|15|21|22|23|31|32|33|34|35|36|37|41|42|43|44|45|46|50|51|52|53|54|61|62|63|64|65)[0-9]{4})" +
+                "(([1|2][0-9]{3}[0|1][0-9][0-3][0-9][0-9]{3}" +
+                "[Xx0-9])|([0-9]{2}[0|1][0-9][0-3][0-9][0-9]{3}))$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(idcardNo);
+        if (m.find()){
+            return true;
+        }else {
+            return false;
+        }
+    }
+    @ResponseBody
+    @RequestMapping("/judgeLoginName")
+    public boolean judgeLoginName(@RequestParam("loginName")String loginName){
+        String rex = "^[a-zA-Z\\d\\_]{1,30}$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(loginName);
+        if (m.find()){
+            return true;
+        }else {
+            return false;
+        }
+    }
+    @ResponseBody
+    @RequestMapping("/judgeLoginPasswd")
+    public boolean judgeLoginPasswd(@RequestParam("loginPasswd")String loginPasswd){
+        String rex = "^[a-zA-Z\\d\\_]{1,30}$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(loginPasswd);
+        if (m.find()){
+            return true;
+        }else {
+            return false;
+        }
+    }
+    @ResponseBody
+    @RequestMapping("/judgeTelephone")
+    public boolean judgeTelephone(@RequestParam("telephone")String telephone){
+        String rex = "^1\\d{10}$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(telephone);
+        if (m.find()){
+            return true;
+        }else {
+            return false;
+        }
+    }
+    @ResponseBody
+    @RequestMapping("/judgeReferAccountID")
+    public boolean judgeReferAccountID(@RequestParam("recommenderId")String recommenderId){
+        String rex = "^1\\d{3}$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(recommenderId);
+
+        if (recommenderId==null||recommenderId.length()==0){
+            return true;
+        }
+
+        if (m.find()){
+            // 去数据库查询是否有这个推荐人Id号码:
+            Account accountById = accountService.findAccountById(Integer.parseInt(recommenderId));
+            // 如果有推荐人的id,说明是正确的
+            if (accountById!=null){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @ResponseBody
+    @RequestMapping("/judgeAccountEmail")
+    public boolean judgeAccountEmail(@RequestParam(value = "email",required = false) String email){
+        String rex = "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(email);
+
+        if (email==null||email.length()==0){
+            return true;
+        }
+
+        if (m.find()){
+            return true;
+        }
+
+        return false;
+    }
+
+    @ResponseBody
+    @RequestMapping("/judgeAccountAddress")
+    public boolean judgeAccountAddress(@RequestParam(value = "mailaddress",required = false) String mailaddress){
+        String rex = "^[a-zA-Z\\d\\u2E80-\\u9FFF]{0,50}$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(mailaddress);
+
+        if (m.find()){
+            return true;
+        }
+        return false;
+    }
+    @ResponseBody
+    @RequestMapping("/judgeZipcode")
+    public boolean judgeZipcode(@RequestParam(value = "zipcode",required = false) String zipcode){
+        String rex = "^\\d{6}$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(zipcode);
+
+        if (zipcode==null||zipcode.length()==0){
+            return true;
+        }
+        if (m.find()){
+            return true;
+        }
+        return false;
+    }
+    @ResponseBody
+    @RequestMapping("/judgeQQ")
+    public boolean judgeQQ(@RequestParam(value = "qq",required = false) String qq){
+        String rex = "^\\d{5,13}$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(qq);
+
+        if (qq==null||qq.length()==0){
+            return true;
+        }
+        if (m.find()){
+            return true;
+        }
+        return false;
     }
 }

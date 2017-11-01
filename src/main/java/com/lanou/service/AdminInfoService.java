@@ -30,4 +30,8 @@ public interface AdminInfoService {
 
     // 通过id删除
     void deleteAdminInfoById(Integer adminId);
+
+    AdminInfo findAdminByName(String adminName);
+
+    AdminInfo findAdminByAdminCode(String adminCode);
 }

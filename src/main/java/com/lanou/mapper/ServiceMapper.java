@@ -29,4 +29,5 @@ public interface ServiceMapper {
 
     Service findServiceDetailsById(@Param("serviceId") Integer id);
 
+    Service findByOsUsername(@Param("osUsername") String osUsername);
 }

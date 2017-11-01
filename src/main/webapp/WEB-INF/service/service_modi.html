@@ -32,10 +32,20 @@
                         $("#unixHost").val(service.unixHost);
                         $("#osUsername").val(service.osUsername);
 
+//                        if (account.occupation=="干部"){
+//                            $("select#occupation option[value='0']").attr('selected','true')}
+
+                        var costId = result.data.costId;
+
+                        /*资费下拉列表的回显*/
+                        /*还是傲然的厉害,我以前用if 写的 都太麻烦了*/
+                        $("select#costName option[costId='"+result.data.costId+"']").attr('selected','true');
+
+//                        $(".selector").find("option[text='"+msg.data+"']").attr("selected",true);
+
                     }
                 })
             }
-            showDetailsForService();
             // 显示资费名称的下拉列表
             function showCostNameOptions() {
                 $.ajax({
@@ -47,6 +57,7 @@
                             var option = $("<option></option>").html(costList[i].name).attr("costId",costList[i].costId);
                             $("#costName").append(option)
                         }
+                        showDetailsForService();
                     }
                 })
             }
@@ -97,7 +108,7 @@
                 <div class="text_info clearfix"><span>资费类型：</span></div>
                 <div class="input_info">
                     <select class="width150" id="costName">
-                        <option>--资费列表--</option>
+                        <!--<option>--资费列表--</option>-->
                         <!--<option>包 20 小时</option>-->
                         <!--<option>包 40 小时</option>-->
                         <!--<option>包 60 小时</option>-->

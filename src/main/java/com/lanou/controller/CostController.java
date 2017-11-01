@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by dllo on 17/10/20.
@@ -188,5 +190,78 @@ public class CostController {
 
         List<Cost> costList = costService.findAll();
         return new AjaxResult(costList,0,"返回资费列表");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/judageCostName")
+    public AjaxResult judageCostName(@RequestParam("costName")String name){
+
+        String regex = "^[a-zA-Z\\d\\_\\u2E80-\\u9FFF]{0,16}$";
+
+        String rex = "^[a-zA-Z\\d\\_\\u2E80-\\u9FFF]{0,16}$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(name);
+
+        // 是否和数据库中已经存在的资费项目重名
+        Cost costByName = costService.findCostByName(name);
+        if (!m.find()){
+            return new AjaxResult(0,"输入验证失败(不符合命名规则)");
+        }
+        if (!(costByName==null)){
+            return new AjaxResult(1,"该资费名称已存在");
+        }
+        if (name==null||name.length()==0){
+            return new AjaxResult(2,"资费名称不能为空");
+        }
+        return new AjaxResult(3,"验证成功!");
+    }
+    @ResponseBody
+    @RequestMapping(value = "/judageBaseDuration")
+    public boolean judageBaseDuration(@RequestParam("baseDuration")String baseDuration){
+        String rex = "^[1-5]\\d{2}|^[1-9]\\d{0,1}$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(baseDuration);
+        if (m.find()){
+            return true;
+        }else {
+            return false;
+        }
+    }
+    @ResponseBody
+    @RequestMapping(value = "/judageBaseCost")
+    public boolean judageBaseCost(@RequestParam("baseCost")String baseCost){
+        String rex = "^[1-9]\\d{0,4}$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(baseCost);
+        if (m.find()){
+            return true;
+        }else {
+            return false;
+        }
+    }
+    @ResponseBody
+    @RequestMapping(value = "/judageUnitCost")
+    public boolean judageUnitCost(@RequestParam("unitCost") String unitCost){
+        String rex = "^[1-9]\\d{0,4}$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(unitCost);
+        if (m.find()){
+            return true;
+        }else {
+            return false;
+        }
+    }
+    @ResponseBody
+    @RequestMapping(value = "/judgeDesc")
+    public boolean judgeDesc(@RequestParam("desc") String desc){
+        System.out.println(desc);
+        String rex = "^[a-zA-Z\\d\\_\\u2E80-\\u9FFF]{0,100}$";
+        Pattern p = Pattern.compile(rex);
+        Matcher m = p.matcher(desc);
+        if (m.find()){
+            return true;
+        }else {
+            return false;
+        }
     }
 }

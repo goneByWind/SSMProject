@@ -77,6 +77,51 @@
             showAccountDetailsByIdInSession();
             // 修改
             function modifyAccount() {
+                if ($("#errorTip1").html()=="20长度以内的汉字、字母和数字的组合"){
+                    alert("请完成姓名的验证!!!");
+                    return;
+                }
+                if ($("#errorTip2").html()=="正确的身份证号码格式"){
+                    alert("请完成身份证格式的的验证!!!");
+                    return;
+                }
+                if ($("#errorTip3").html()=="30长度以内的字母、数字和下划线的组合"){
+                    alert("请完成登录账号名称的的验证!!!");
+                    return;
+                }
+                if ($("#errorTip4").html()=="30长度以内的字母、数字和下划线的组合"){
+                    alert("请完成登录密码的的验证!!!");
+                    return;
+                }
+                if ($("#passwordMustSame").html()=="两次密码必须相同"){
+                    alert("重复密码与密码输入不一致!!!");
+                    return;
+                }
+                if ($("#errorTip5").html()=="请输入正确的手机号码格式"){
+                    alert("手机号码验证未通过!!!");
+                    return;
+                }
+                if ($("#errorTip6").html()=="请输入正确的ID账号格式"){
+                    alert("推荐人ID账号验证未通过!!!");
+                    return;
+                }
+                if ($("#errorTip7").html()=="请输入正确的Email"){
+                    alert("Email格式验证未通过!!!");
+                    return;
+                }
+
+                if ($("#errorTip8").html()=="通信地址需要在50字以内"){
+                    alert("通信地址字数超过50字!!!");
+                    return;
+                }
+                if ($("#errorTip9").html()=="邮编应该为6位数字"){
+                    alert("邮编应该为6位数字!!!");
+                    return;
+                }
+                if ($("#errorTip10").html()=="QQ应该为5到13位数字"){
+                    alert("QQ应该为5到13位数字!!!");
+                    return;
+                }
                 $.ajax({
                     url:"/modifyAccount",
                     type:"post",
@@ -121,6 +166,176 @@
                 else
                     document.getElementById("divPwds").style.display = "none";
             }
+            /*去后端判断:验证account名称*/
+            function judgeName() {
+                var reg = /^[a-zA-Z\d\u2E80-\u9FFF]{0,20}$/;
+                var name = $("#realName").val();
+                $.ajax({
+                    url:"/judageRealName",
+                    type:"post",
+                    data:{
+                        realName:name
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip1").html("验证成功!");
+                        }else {
+                            $("#errorTip1").html("20长度以内的汉字、字母和数字的组合");
+                        }
+                    }
+                })
+            }
+            /*去后端判断:验证登录账户:loginName*/
+            function judgeLoginName() {
+                var reg = /^[a-zA-Z\d\_]{1,30}$/;
+                var loginName = $("#loginName").val();
+                $.ajax({
+                    url:"/judgeLoginName",
+                    type:"post",
+                    data:{
+                        loginName:loginName
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip3").html("验证成功!");
+                        }else {
+                            $("#errorTip3").html("30长度以内的字母、数字和下划线的组合");
+                        }
+                    }
+                })
+            }
+            /*去后端判断:验证登录密码:loginPasswd*/
+            function judgeLoginPasswd() {
+                var reg = /^[a-zA-Z\d\_]{1,30}$/;
+                var loginPasswd = $("#loginPasswd").val();
+                $.ajax({
+                    url:"/judgeLoginPasswd",
+                    type:"post",
+                    data:{
+                        loginPasswd:loginPasswd
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip4").html("验证成功!");
+                        }else {
+                            $("#errorTip4").html("30长度以内的字母、数字和下划线的组合");
+                        }
+                    }
+                })
+            }
+            /*去后端判断:验证手机号码:telephone*/
+            function judgeTelephone() {
+                var reg = /^(13[0-9]|15[0|3|6|7|8|9]|18[8|9])\\d{8}$/;
+                var telephone = $("#telephone").val();
+                $.ajax({
+                    url:"/judgeTelephone",
+                    type:"post",
+                    data:{
+                        telephone:telephone
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip5").html("验证成功!");
+                        }else {
+                            $("#errorTip5").html("请输入正确的手机号码格式");
+                        }
+                    }
+                })
+            }
+            /*去后端判断:推荐人账务账号ID*/
+            function judgeReferAccountID() {
+                var reg = /^1\d{3}$/;
+                var recommenderId = $("#recommenderId").val();
+                $.ajax({
+                    url:"/judgeReferAccountID",
+                    type:"post",
+                    data:{
+                        recommenderId:recommenderId
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip6").html("  ");
+                        }else {
+                            $("#errorTip6").html("请输入正确的ID账号格式");
+                        }
+                    }
+                })
+            }
+            /*去后端判断:Email*/
+            function judgeAccountEmail() {
+                // var reg = /^\w+[-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+                var email = $("#email").val();
+                $.ajax({
+                    url:"/judgeAccountEmail",
+                    type:"post",
+                    data:{
+                        email:email
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip7").html("  ");
+                        }else {
+                            $("#errorTip7").html("请输入正确的Email");
+                        }
+                    }
+                })
+            }
+
+            /*去后端判断:通信地址*/
+            function judgeAccountAddress() {
+                // var reg = /^\w+[-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+                var mailaddress = $("#mailaddress").val();
+                $.ajax({
+                    url:"/judgeAccountAddress",
+                    type:"post",
+                    data:{
+                        mailaddress:mailaddress
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip8").html("  ");
+                        }else {
+                            $("#errorTip8").html("通信地址需要在50字以内");
+                        }
+                    }
+                })
+            }
+            /*去后端判断:邮编*/
+            function judgeZipcode() {
+                var zipcode = $("#zipcode").val();
+                $.ajax({
+                    url:"/judgeZipcode",
+                    type:"post",
+                    data:{
+                        zipcode:zipcode
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip9").html("  ");
+                        }else {
+                            $("#errorTip9").html("邮编应该为6位数字");
+                        }
+                    }
+                })
+            }
+            /*去后端判断:QQ*/
+            function judgeQQ() {
+                var qq = $("#qq").val();
+                $.ajax({
+                    url:"/judgeQQ",
+                    type:"post",
+                    data:{
+                        qq:qq
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip10").html("  ");
+                        }else {
+                            $("#errorTip10").html("QQ应该为5到13位数字");
+                        }
+                    }
+                })
+            }
         </script>
     </head>
     <body>
@@ -158,9 +373,9 @@
                     </div>
                     <div class="text_info clearfix"><span>姓名：</span></div>
                     <div class="input_info">
-                        <input type="text" value="张三" id="realName" />
+                        <input type="text" value="张三" id="realName" onchange="judgeName()" />
                         <span class="required">*</span>
-                        <div class="validate_msg_long error_msg">20长度以内的汉字、字母和数字的组合</div>
+                        <div class="validate_msg_long" id="errorTip1"></div>
                     </div>
                     <div class="text_info clearfix"><span>身份证：</span></div>
                     <div class="input_info">
@@ -201,15 +416,15 @@
                     -->             
                     <div class="text_info clearfix"><span>电话：</span></div>
                     <div class="input_info">
-                        <input type="text" class="width200" id="telephone"/>
+                        <input type="text" class="width200" id="telephone" onchange="judgeTelephone()"/>
                         <span class="required">*</span>
-                        <div class="validate_msg_medium error_msg">正确的电话号码格式：手机或固话</div>
+                        <div class="validate_msg_medium" id="errorTip5"></div>
                     </div>
                     <div class="text_info clearfix"><span>推荐人账号ID：</span></div>
                     <div class="input_info">
-                        <input type="text" id="recommenderId"/>
+                        <input type="text" id="recommenderId" onchange="judgeReferAccountID()"/>
                         <!--正确的身份证号码格式-->
-                        <div class="validate_msg_long error_msgs"></div>
+                        <div class="validate_msg_long error_msgs" id="errorTip6"></div>
                     </div>
                     <div class="text_info clearfix"><span>生日：</span></div>
                     <div class="input_info">
@@ -217,8 +432,8 @@
                     </div>
                     <div class="text_info clearfix"><span>Email：</span></div>
                     <div class="input_info">
-                        <input type="text" class="width200" id="email"/>
-                        <div class="validate_msg_medium">50长度以内，合法的 Email 格式</div>
+                        <input type="text" class="width200" id="email" onchange="judgeAccountEmail()"/>
+                        <div class="validate_msg_medium" id="errorTip7"></div>
                     </div> 
                     <div class="text_info clearfix"><span>职业：</span></div>
                     <div class="input_info">
@@ -240,18 +455,18 @@
                     </div> 
                     <div class="text_info clearfix"><span>通信地址：</span></div>
                     <div class="input_info">
-                        <input type="text" class="width350" id="mailaddress"/>
-                        <div class="validate_msg_tiny">50长度以内</div>
+                        <input type="text" class="width350" id="mailaddress" onchange="judgeAccountAddress()"/>
+                        <div class="validate_msg_tiny" id="errorTip8">50长度以内</div>
                     </div> 
                     <div class="text_info clearfix"><span>邮编：</span></div>
                     <div class="input_info">
-                        <input type="text" id="zipcode"/>
-                        <div class="validate_msg_long">6位数字</div>
+                        <input type="text" id="zipcode" onchange="judgeZipcode()"/>
+                        <div class="validate_msg_long" id="errorTip9">6位数字</div>
                     </div> 
                     <div class="text_info clearfix"><span>QQ：</span></div>
                     <div class="input_info">
-                        <input type="text" id="qq"/>
-                        <div class="validate_msg_long">5到13位数字</div>
+                        <input type="text" id="qq" onchange="judgeQQ()"/>
+                        <div class="validate_msg_long" id="errorTip10">5到13位数字</div>
                     </div>                
                     <!--操作按钮-->
                     <div class="button_info clearfix">

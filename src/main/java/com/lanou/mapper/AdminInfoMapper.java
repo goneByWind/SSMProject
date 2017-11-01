@@ -34,4 +34,8 @@ public interface AdminInfoMapper {
     // 模糊查询
     List<AdminInfo> selectByInfo(@Param("moduleId") Integer moduleId,
                                  @Param("roleName") String roleName);
+
+    AdminInfo findAdminByName(@Param("adminName") String adminName);
+
+    AdminInfo findAdminByAdminCode(@Param("adminCode") String adminCode);
 }

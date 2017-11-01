@@ -29,4 +29,6 @@ public interface CostMapper {
     List<Cost> sortWithBasedurationDesc();
 
     List<Cost> sortWithBasedurationAsc();
+
+    Cost findByName(@Param("costName") String name);
 }

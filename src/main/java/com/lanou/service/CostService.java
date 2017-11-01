@@ -26,4 +26,6 @@ public interface CostService {
     List<Cost> sortCost(Integer type, Integer order);
 
     PageInfo<Cost> sortCostWithPage(Integer type, Integer order,Integer pageNo, Integer pageSize);
+
+    Cost findCostByName(String name);
 }

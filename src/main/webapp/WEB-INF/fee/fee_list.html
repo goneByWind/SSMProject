@@ -113,9 +113,9 @@
                 $("<input type='button' value='删除' class='btn_delete'>").click(deleteFee).attr("num",msg.costId).appendTo(td_cost_func);
                 }
                 if (msg.status=="开通"){
-                    $("<input type='button' value='启用' class='btn_start'>").appendTo(td_cost_func);
-                    $("<input type='button' value='修改' class='btn_modify'>").appendTo(td_cost_func);
-                    $("<input type='button' value='删除' class='btn_delete'>").appendTo(td_cost_func);
+//                    $("<input type='button' value='启用' class='btn_start'>").appendTo(td_cost_func);
+//                    $("<input type='button' value='修改' class='btn_modify'>").appendTo(td_cost_func);
+//                    $("<input type='button' value='删除' class='btn_delete'>").appendTo(td_cost_func);
                 }
 
                 var tr_cost = $("<tr></tr>").append(td_cost_id).append(td_cost_name).append(td_cost_baseDuration).append(td_cost_baseCost).append(td_cost_unitCost).append(td_cost_creatime).append(td_cost_startime).append(td_cost_status).append(td_cost_func).attr("id","trname"+msg.costId);

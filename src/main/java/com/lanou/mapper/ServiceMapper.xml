@@ -75,6 +75,13 @@
     from service
     where service_id = #{serviceId}
   </select>
+  <!--新增service时验证osUsername是否已经存在于数据库中-->
+  <select id="findByOsUsername" resultType="com.lanou.bean.Service">
+    select
+    <include refid="Base_Column_List" />
+    from service
+    where os_username = #{osUsername}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from service
     where service_id = #{serviceId,jdbcType=INTEGER}

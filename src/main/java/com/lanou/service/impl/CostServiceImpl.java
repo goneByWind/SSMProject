@@ -122,4 +122,9 @@ public class CostServiceImpl implements CostService {
         }
         return null;
     }
+
+    @Override
+    public Cost findCostByName(String name) {
+        return costMapper.findByName(name);
+    }
 }

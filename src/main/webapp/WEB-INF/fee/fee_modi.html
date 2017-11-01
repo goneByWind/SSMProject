@@ -9,6 +9,27 @@
         <script language="javascript" type="text/javascript">
             // 修改一条资费项目的信息
             function modifyCost() {
+                if ($("#errorTip1").html()=="16长度的字母、数字、汉字和下划线的组合"||$("#errorTip1").html()=="该资费名称已经存在,请更改名称"||
+                        $("#errorTip1").html()=="资费名称不能为空"){
+                    alert("请完成资费名称的验证!!!");
+                    return;
+                }
+                if ($("#errorTip2").html()=="1-600之间的整数"){
+                    alert("请完成基本时长的验证!!!");
+                    return;
+                }
+                if ($("#errorTip3").html()=="0-99999.99之间的数值"){
+                    alert("请完成基本费用的验证!!!");
+                    return;
+                }
+                if ($("#errorTip4").html()=="0-99999.99之间的数值"){
+                    alert("请完成单位费用的验证!!!");
+                    return;
+                }
+                if ($("#errorTip5").html()=="限100个字以内"){
+                    alert("请完成描述的验证!!!");
+                    return;
+                }
                 $.ajax({
                     url:"/updateCostById",
                     type:"post",
@@ -105,6 +126,115 @@
                     inputArray[7].className = "width100";
                 }
             }
+            /*去后端判断:验证cost名称*/
+            function judgeName() {
+                var reg = /^[a-zA-Z\d\_\u2E80-\u9FFF]{0,16}$/;
+                var name = $("#costName").val();
+                $.ajax({
+                    url:"/judageCostName",
+                    type:"post",
+                    data:{
+                        costName:name
+                    },
+
+                    success:function (result) {
+                            if (result.errorCode==3){
+                                $("#errorTip1").html("验证成功!");
+                            }else if (result.errorCode==2){
+                                $("#errorTip1").html("资费名称不能为空");
+                            }else if(result.errorCode==1) {
+                                $("#errorTip1").html("该资费名称已经存在,请更改名称");
+                            }else {
+                                $("#errorTip1").html("16长度的字母、数字、汉字和下划线的组合");
+                            }
+                    }
+                })
+            }
+            /*去后端判断:验证基本时长*/
+            function judgeBaseDuration() {
+                /*
+                 ^[1-5]:以1-5开头
+                 \d:数字
+                 {0,2}:1-3位
+                 |600: 或者600也可以
+                 */
+                var baseDuration = $("#baseDuration").val();
+                $.ajax({
+                    url:"/judageBaseDuration",
+                    type:"post",
+                    data:{
+                        baseDuration:baseDuration
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip2").html("验证成功!");
+                        }else {
+                            $("#errorTip2").html("1-600之间的整数");
+                        }
+                    }
+                })
+            }
+            /*去后端判断:验证基本费用  */
+            function judgeBaseCost() {
+
+                var reg = /^[1-9]\d{0,4}$/;
+                var baseCost = $("#baseCost").val();
+                //baseCost>100000||baseCost<=0
+                $.ajax({
+                    url:"/judageBaseCost",
+                    type:"post",
+                    data:{
+                        baseCost:baseCost
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip3").html("验证成功!");
+                        }else{
+                            $("#errorTip3").html("0-99999.99之间的数值");
+                        }
+                    }
+                })
+            }
+            /*去后端判断:单位费用  */
+            function judgeUnitCost() {
+
+                var reg = /^[1-9]\d{0,4}$/;
+                var unitCost1 = $("#unitCost1").val();
+                //baseCost>100000||baseCost<=0
+                $.ajax({
+                    url:"/judageUnitCost",
+                    type:"post",
+                    data:{
+                        unitCost:unitCost1
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip4").html("验证成功!");
+                        }else {
+                            $("#errorTip4").html("0-99999.99之间的数值");
+                        }
+                    }
+                })
+            }
+            /*去后端判断:描述  */
+            function judgeDesc() {
+                var reg = /^[a-zA-Z\d\_\u2E80-\u9FFF]{0,100}$/;
+                var desc = $("#descr").html();
+                $.ajax({
+                    url:"/judgeDesc",
+                    type:"post",
+                    data:{
+                        desc:desc
+                    },
+                    success:function (result) {
+                        if (result){
+                            $("#errorTip5").html("验证成功!");
+                        }else {
+                            $("#errorTip5").html("限100个字以内");
+                        }
+                    }
+                })
+            }
         </script>
     </head>
     <body>
@@ -138,9 +268,9 @@
                 <div class="input_info"><input type="text" class="readonly" readonly value="1" id="costId" /></div>
                 <div class="text_info clearfix"><span>资费名称：</span></div>
                 <div class="input_info">
-                    <input type="text" class="width300" value="包 20 小时" id="costName"/>
+                    <input type="text" class="width300" value="包 20 小时" id="costName" onchange="judgeName()"/>
                     <span class="required">*</span>
-                    <div class="validate_msg_short">50长度的字母、数字、汉字和下划线的组合</div>
+                    <div class="validate_msg_short" id="errorTip1"></div>
                 </div>
                 <div class="text_info clearfix"><span>资费类型：</span></div>
                 <div class="input_info fee_type">
@@ -153,30 +283,30 @@
                 </div>
                 <div class="text_info clearfix"><span>基本时长：</span></div>
                 <div class="input_info">
-                    <input type="text" value="" class="width100" id="baseDuration" />
+                    <input type="text" value="" class="width100" id="baseDuration" onchange="judgeBaseDuration()" />
                     <span class="info">小时</span>
                     <span class="required">*</span>
-                    <div class="validate_msg_long">1-600之间的整数</div>
+                    <div class="validate_msg_long" id="errorTip2"></div>
                 </div>
                 <div class="text_info clearfix"><span>基本费用：</span></div>
                 <div class="input_info">
-                    <input type="text" value="" class="width100" id="baseCost" />
+                    <input type="text" value="" class="width100" id="baseCost" onchange="judgeBaseCost()" />
                     <span class="info">元</span>
                     <span class="required">*</span>
-                    <div class="validate_msg_long">0-99999.99之间的数值</div>
+                    <div class="validate_msg_long" id="errorTip3"></div>
                 </div>
                 <div class="text_info clearfix"><span>单位费用：</span></div>
                 <div class="input_info">
-                    <input type="text" value="" class="width100" id="unitCost1" />
+                    <input type="text" value="" class="width100" id="unitCost1" onchange="judgeUnitCost()"/>
                     <span class="info">元/小时</span>
                     <span class="required">*</span>
-                    <div class="validate_msg_long">0-99999.99之间的数值</div>
+                    <div class="validate_msg_long" id="errorTip4"></div>
                 </div>   
                 <div class="text_info clearfix"><span>资费说明：</span></div>
                 <div class="input_info_high">
-                    <textarea class="width300 height70" id="descr">没有启用的资费，可以修改除 ID 以外的所有信息
+                    <textarea class="width300 height70" id="descr" onchange="judgeDesc()">没有启用的资费，可以修改除 ID 以外的所有信息
                     </textarea>
-                    <div class="validate_msg_short">100长度的字母、数字、汉字和下划线的组合</div>
+                    <div class="validate_msg_short" id="errorTip5"></div>
                 </div>                    
                 <div class="button_info clearfix">
                     <!--<input type="button" value="保存" class="btn_save"  onclick="showResult();" />-->

@@ -68,4 +68,14 @@ public class AdminInfoServiceImpl implements AdminInfoService {
     public void deleteAdminInfoById(Integer adminId) {
         adminInfoMapper.deleteByPrimaryKey(adminId);
     }
+
+    @Override
+    public AdminInfo findAdminByName(String adminName) {
+        return adminInfoMapper.findAdminByName(adminName);
+    }
+
+    @Override
+    public AdminInfo findAdminByAdminCode(String adminCode) {
+        return adminInfoMapper.findAdminByAdminCode(adminCode);
+    }
 }
