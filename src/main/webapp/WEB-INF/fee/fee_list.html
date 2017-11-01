@@ -110,7 +110,7 @@
                 $("<input type='button' value='启用' class='btn_start'>").click(startFee).attr("pageNum",type.pageNum).attr("num",msg.costId).appendTo(td_cost_func);
 //                $("<input type='button' value='修改' class='btn_modify' onclick='location.href='fee_modi.html';'>").appendTo(td_cost_func).attr("num",msg.id);
                 $("<input type='button' value='修改' class='btn_modify'>").click(modifyFee).attr("num",msg.costId).appendTo(td_cost_func);
-                $("<input type='button' value='删除' class='btn_delete'>").click(deleteFee).attr("num",msg.costId).appendTo(td_cost_func);
+                $("<input type='button' value='删除' class='btn_delete'>").click(deleteFee).attr("num",msg.costId).attr("pageNum",type.pageNum).attr("howManyRows",type.list.length).appendTo(td_cost_func);
                 }
                 if (msg.status=="开通"){
 //                    $("<input type='button' value='启用' class='btn_start'>").appendTo(td_cost_func);
@@ -300,6 +300,9 @@
                 if (r==true){
                     document.getElementById("operate_result_info").style.display = "block";
                     var costId=$(this).attr("num");
+                    var howManyRows = $(this).attr("howManyRows");
+                    var pageNum = $(this).attr("pageNum");
+
                     $.ajax({
                         url:"/deleteCostById",
                         type:"post",
@@ -308,7 +311,15 @@
                         },
                         success:function (result) {
                             console.log(result.message);
-                            $("#trname"+costId).remove();
+                            /*存在bug:如果在排序的状态下,并且是本页中最后一条要删除的话,
+                              就会跳转到正常顺序排列的上一页,这个bug我无法解决*/
+                            /*加入排序之后,由于有两套分页的系统,导致存在一些小bug无法结果*/
+                            if (howManyRows==1){
+                                separatePages(pageNum-1)
+                            }else {
+                                $("#trname"+costId).remove();
+                            }
+
                         }
                     });
                 }

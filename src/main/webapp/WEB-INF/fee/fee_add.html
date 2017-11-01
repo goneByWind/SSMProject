@@ -14,15 +14,15 @@
                     alert("请完成资费名称的验证!!!");
                     return;
                 }
-                if ($("#errorTip2").html()=="1-600之间的整数"){
+                if ($("#errorTip2").html()=="1-600之间的整数!"){
                     alert("请完成基本时长的验证!!!");
                     return;
                 }
-                if ($("#errorTip3").html()=="0-99999.99之间的数值"){
+                if ($("#errorTip3").html()=="0-99999.99之间的数值!"){
                     alert("请完成基本费用的验证!!!");
                     return;
                 }
-                if ($("#errorTip4").html()=="0-99999.99之间的数值"){
+                if ($("#errorTip4").html()=="0-99999.99之间的数值!"){
                     alert("请完成单位费用的验证!!!");
                     return;
                 }
@@ -145,7 +145,7 @@
                 var b = reg.test(baseDuration);
                 //baseDuration>600||baseDuration<=0
                 if (!b){
-                    $("#errorTip2").html("1-600之间的整数");
+                    $("#errorTip2").html("1-600之间的整数!");
                 }
                 else {
                     $("#errorTip2").html("验证成功!");
@@ -171,7 +171,7 @@
                         if (result){
                             $("#errorTip2").html("验证成功!");
                         }else {
-                            $("#errorTip2").html("1-600之间的整数");
+                            $("#errorTip2").html("1-600之间的整数!");
                         }
                     }
                 })
@@ -207,6 +207,8 @@
                     success:function (result) {
                         if (result){
                             $("#errorTip3").html("验证成功!");
+                        }else {
+                            $("#errorTip3").html("0-99999.99之间的数值!");
                         }
                     }
                 })
@@ -218,7 +220,7 @@
                 var b= reg.test(unitCost1);
                 // unitCost1>100000||unitCost1<=0
                 if (!b){
-                    $("#errorTip4").html("0-99999.99之间的数值");
+                    $("#errorTip4").html("0-99999.99之间的数值!");
                 }
                 else {
                     $("#errorTip4").html("验证成功!");
@@ -239,6 +241,8 @@
                     success:function (result) {
                         if (result){
                             $("#errorTip4").html("验证成功!");
+                        }else {
+                            $("#errorTip4").html("0-99999.99之间的数值!");
                         }
                     }
                 })

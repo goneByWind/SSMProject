@@ -19,7 +19,7 @@
                     alert("请完成身份证格式的的验证!!!");
                     return;
                 }
-                if ($("#errorTip3").html()=="30长度以内的字母、数字和下划线的组合"){
+                if ($("#errorTip3").html()=="30长度以内的字母、数字和下划线的组合"||$("#errorTip3").html()=="登录账号已经存在"){
                     alert("请完成登录账号名称的的验证!!!");
                     return;
                 }
@@ -185,9 +185,14 @@
                         loginName:loginName
                     },
                     success:function (result) {
-                        if (result){
+
+                        if (result.errorCode==2){
                             $("#errorTip3").html("验证成功!");
-                        }else {
+                        }
+                        if (result.errorCode==1){
+                            $("#errorTip3").html("登录账号已经存在");
+                        }
+                        if (result.errorCode==0){
                             $("#errorTip3").html("30长度以内的字母、数字和下划线的组合");
                         }
                     }

@@ -50,7 +50,7 @@
                     $("<span></span>").html(msg.roleInfoList[i].name+" ").appendTo(divForTd8);}
                 var td9 = $("<td></td>");
                 $("<input type='button' value='修改' class='btn_modify'>").click(saveIdToSession).attr("num",msg.adminId).attr("pageNum",pageMsg.pageNum).appendTo(td9);
-                $("<input type='button' value='删除' class='btn_delete'>").click(deleteAdmin).attr("num",msg.adminId).attr("pageNum",pageMsg.pageNum).appendTo(td9);
+                $("<input type='button' value='删除' class='btn_delete'>").click(deleteAdmin).attr("num",msg.adminId).attr("pageNum",pageMsg.pageNum).attr("howManyRows",pageMsg.list.length).appendTo(td9);
 
                 var tr_admin = $("<tr></tr>").append(td1).append(td2).append(td3).append(td4).append(td5).append(td6).append(td7).append(td8).append(td9);
 
@@ -151,6 +151,7 @@
                 if (r){
                     var adminId = $(this).attr("num");
                     var pageNum = $(this).attr("pageNum");
+                    var howManyRows = $(this).attr("howManyRows");
                     $.ajax({
                         url:"/deleteAdminInfo",
                         type:"post",
@@ -159,7 +160,11 @@
                         },
                         success:function (result) {
                             document.getElementById("operate_result_info").style.display = "block";
-                            showAllMessagesWithSeparatePagesForAdmin(pageNum);
+                            if (howManyRows==1){
+                                showAllMessagesWithSeparatePagesForAdmin(pageNum-1);
+                            }else {
+                                showAllMessagesWithSeparatePagesForAdmin(pageNum);
+                            }
                         }
 
                     })

@@ -259,15 +259,18 @@ public class AccountController {
     }
     @ResponseBody
     @RequestMapping("/judgeLoginName")
-    public boolean judgeLoginName(@RequestParam("loginName")String loginName){
+    public AjaxResult judgeLoginName(@RequestParam("loginName")String loginName){
         String rex = "^[a-zA-Z\\d\\_]{1,30}$";
         Pattern p = Pattern.compile(rex);
         Matcher m = p.matcher(loginName);
-        if (m.find()){
-            return true;
-        }else {
-            return false;
+        if (!m.find()){
+            return new AjaxResult(0,"未通过输入验证");
         }
+        Account account = accountService.findAccountByLoginName(loginName);
+        if (!(account==null)){
+            return new AjaxResult(1,"登录账号名称已经存在");
+        }
+        return new AjaxResult(2,"验证成功!");
     }
     @ResponseBody
     @RequestMapping("/judgeLoginPasswd")
